@@ -34,7 +34,7 @@ export default function ScoreSidebar({ assessment, onSave, onReset, onGoToStep }
   const progressPercent = Math.min(100, Math.max(0, computed.finalScore || 0));
 
   return (
-    <aside className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs sticky top-28 no-print">
+    <aside className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs sticky top-20 sm:top-24 max-h-[calc(100vh-5.5rem)] sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto scrollbar-thin no-print">
       {/* Header Info */}
       <div className="border-b border-slate-100 pb-4">
         <div className="flex items-center justify-between text-xs text-slate-500 mb-1">

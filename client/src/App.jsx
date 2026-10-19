@@ -284,7 +284,7 @@ export default function App() {
           />
         ) : (
           // Editorial grid: Left form page + Right sticky score summary
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             <div className="lg:col-span-8 space-y-6">
               {activeStep === 'identitas' && (
                 <IdentitasPage
@@ -328,7 +328,7 @@ export default function App() {
               )}
             </div>
 
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-4 relative h-full">
               <ScoreSidebar
                 assessment={currentAssessment}
                 onSave={handleSave}
