@@ -1,0 +1,16 @@
+{
+  "name": "penilaian-tjsl-local-heroes-pln-es",
+  "private": true,
+  "description": "Form penilaian juri PLN ES TJSL Local Heroes: cek persyaratan, beri skor, dan lihat peringkat peserta pegawai/TAD.",
+  "scripts": {
+    "dev:all": "concurrently -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "lint": "npm --prefix client run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
