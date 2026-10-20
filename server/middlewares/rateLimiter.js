@@ -66,17 +66,19 @@ class MemoryRateLimiter {
   }
 }
 
-// 1. Anti Brute Force for Login: max 5 attempts per 15 minutes
+const isDev = process.env.NODE_ENV !== 'production';
+
+// 1. Anti Brute Force for Login: max 100 in dev, 5 in prod
 export const loginLimiter = new MemoryRateLimiter(
   15 * 60 * 1000,
-  5,
+  isDev ? 100 : 5,
   'Terlalu banyak percobaan masuk yang gagal demi keamanan akun.'
 );
 
-// 2. Anti Spam for Registration: max 10 attempts per 60 minutes
+// 2. Anti Spam for Registration: max 100 in dev, 10 in prod
 export const registerLimiter = new MemoryRateLimiter(
   60 * 60 * 1000,
-  10,
+  isDev ? 100 : 10,
   'Batas pendaftaran akun baru telah tercapai.'
 );
 

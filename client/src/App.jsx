@@ -14,6 +14,7 @@ import PendaftaranPage from './pages/PendaftaranPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
 import { useNotification } from './hooks/useNotification';
 import { useRouter } from './hooks/useRouter';
 import { useAuth } from './hooks/useAuth';
@@ -30,7 +31,7 @@ import { SDGS_OPTIONS, TOTAL_ADMIN_ITEMS } from './utils/constants';
 import { REGISTRATION_SDGS } from './constants/registrationConstants';
 
 export default function App() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { showNotification, auditLogs } = useNotification();
   const { route, navigate } = useRouter();
   const { appMode, activeStep } = route;
@@ -77,13 +78,29 @@ export default function App() {
         });
         return;
       }
+    } else if (mode === 'profile') {
+      if (!activeUser) {
+        navigate('login');
+        showNotification({
+          type: 'warning',
+          title: 'Perlu Masuk',
+          message: 'Silakan masuk untuk mengakses halaman profil Anda.'
+        });
+        return;
+      }
     }
     navigate(mode, mode === 'penilaian' ? 'identitas' : undefined);
   }, [navigate, user, showNotification]);
 
   // Strict Role Route Guards (Redirects if URL does not match role or unauthenticated)
   useEffect(() => {
-    if (appMode === 'login' || appMode === 'register') return;
+    if (appMode === 'login' || appMode === 'register' || appMode === 'profile') {
+      const activeUser = user || getStoredUser();
+      if (appMode === 'profile' && !activeUser) {
+        navigate('login', undefined, true);
+      }
+      return;
+    }
 
     const activeUser = user || getStoredUser();
 
@@ -531,7 +548,19 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 no-print">
-        {appMode === 'pendaftaran' ? (
+        {appMode === 'profile' ? (
+          <ProfilePage
+            user={user}
+            onProfileUpdated={(updated) => {
+              if (updateUser) updateUser(updated);
+            }}
+            onBack={() => {
+              if (user?.role === 'admin') handleSelectAppMode('dashboard');
+              else if (user?.role === 'penilai') handleSelectAppMode('penilaian');
+              else handleSelectAppMode('pendaftaran');
+            }}
+          />
+        ) : appMode === 'pendaftaran' ? (
           <PendaftaranPage onNavigateLogin={() => handleSelectAppMode('login')} />
         ) : activeStep === 'rekap' ? (
           // Full-width leaderboard page

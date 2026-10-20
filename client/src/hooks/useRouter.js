@@ -56,6 +56,12 @@ export const ROUTE_METADATA = {
     title: 'Pendaftaran Akun Baru',
     description:
       'Registrasi akun baru untuk pengusul inisiatif, dewan juri, dan panitia seleksi TJSL Local Heroes PLN ES.'
+  },
+  profile: {
+    path: '/profil',
+    title: 'Profil & Pengaturan Akun',
+    description:
+      'Informasi profil pengguna, pengaturan biodata, dan pembaruan kata sandi akun TJSL Local Heroes PLN ES.'
   }
 };
 
@@ -73,6 +79,9 @@ export function parseRoute(pathname = window.location.pathname) {
   }
   if (clean === '/register' || clean === '/daftar') {
     return { appMode: 'register', activeStep: 'register', path: '/register' };
+  }
+  if (clean === '/profil' || clean === '/profile') {
+    return { appMode: 'profile', activeStep: 'profile', path: '/profil' };
   }
 
   if (clean === '/rekap' || clean === '/penilaian/rekap') {
@@ -121,6 +130,9 @@ export function useRouter() {
     } else if (newAppMode === 'register') {
       metaKey = 'register';
       targetPath = '/register';
+    } else if (newAppMode === 'profile') {
+      metaKey = 'profile';
+      targetPath = '/profil';
     } else if (newAppMode === 'penilaian') {
       metaKey = newActiveStep || 'identitas';
       const meta = ROUTE_METADATA[metaKey] || ROUTE_METADATA.identitas;

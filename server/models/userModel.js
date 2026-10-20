@@ -186,5 +186,53 @@ export const UserModel = {
     const deleted = next.length !== data.length;
     fs.writeFileSync(config.userDataFile, JSON.stringify(next, null, 2), 'utf-8');
     return deleted;
+  },
+
+  updateProfile: async (id, { nama, nip }) => {
+    if (isDbConnected()) {
+      try {
+        const pool = getPool();
+        await pool.query('UPDATE users SET nama = ?, nip = ? WHERE id = ?', [nama, nip, id]);
+        const [rows] = await pool.query('SELECT * FROM users WHERE id = ? LIMIT 1', [id]);
+        if (rows.length > 0) return sanitizeUser(rows[0]);
+      } catch (err) {
+        console.warn('[UserModel] DB Error updateProfile, falling back to JSON:', err.message);
+      }
+    }
+
+    ensureDataFile();
+    const data = JSON.parse(fs.readFileSync(config.userDataFile, 'utf-8'));
+    const idx = data.findIndex((u) => u.id === id);
+    if (idx !== -1) {
+      if (nama) data[idx].nama = nama;
+      if (nip !== undefined) data[idx].nip = nip;
+      fs.writeFileSync(config.userDataFile, JSON.stringify(data, null, 2), 'utf-8');
+      return sanitizeUser(data[idx]);
+    }
+    return null;
+  },
+
+  updatePassword: async (id, newPassword) => {
+    const { hash, salt } = hashPassword(newPassword);
+    if (isDbConnected()) {
+      try {
+        const pool = getPool();
+        await pool.query('UPDATE users SET password_hash = ?, salt = ? WHERE id = ?', [hash, salt, id]);
+        return true;
+      } catch (err) {
+        console.warn('[UserModel] DB Error updatePassword, falling back to JSON:', err.message);
+      }
+    }
+
+    ensureDataFile();
+    const data = JSON.parse(fs.readFileSync(config.userDataFile, 'utf-8'));
+    const idx = data.findIndex((u) => u.id === id);
+    if (idx !== -1) {
+      data[idx].password_hash = hash;
+      data[idx].salt = salt;
+      fs.writeFileSync(config.userDataFile, JSON.stringify(data, null, 2), 'utf-8');
+      return true;
+    }
+    return false;
   }
 };

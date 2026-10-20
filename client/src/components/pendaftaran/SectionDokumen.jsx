@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { FileCheck2, Upload, Trash2, ExternalLink, Paperclip, Link as LinkIcon, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { FileCheck2, Upload, Trash2, ExternalLink, Paperclip, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { REGISTRATION_DOCS } from '../../constants/registrationConstants';
 import { uploadFileToServer, deleteFileFromServer } from '../../services/uploadService';
 import { useNotification } from '../../hooks/useNotification';
 import { API_BASE_URL } from '../../config';
 
-export default function SectionDokumen({ files = {}, links = {}, onAddFile, onRemoveFile, onChangeLink }) {
+export default function SectionDokumen({ files = {}, onAddFile, onRemoveFile }) {
   const { showNotification } = useNotification();
   const [uploadingKey, setUploadingKey] = useState(null);
 
@@ -70,15 +70,14 @@ export default function SectionDokumen({ files = {}, links = {}, onAddFile, onRe
           Dokumen Pendukung & Bukti Sahih
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
-          Unggah berkas bukti (PDF, foto JPG/PNG, atau video MP4 maks. 20 MB per berkas), atau tempelkan tautan folder Google Drive / OneDrive yang dapat diakses publik/panitia.
+          Unggah berkas bukti resmi (PDF, foto JPG/PNG, atau video MP4 maks. 20 MB per berkas).
         </p>
       </div>
 
       <div className="divide-y divide-slate-100 space-y-6">
         {REGISTRATION_DOCS.map((doc, idx) => {
           const docFiles = files[doc.key] || [];
-          const docLink = links[doc.key] || '';
-          const hasEvidence = docFiles.length > 0 || docLink.trim() !== '';
+          const hasEvidence = docFiles.length > 0;
           const isUploading = uploadingKey === doc.key;
 
           return (
@@ -193,17 +192,7 @@ export default function SectionDokumen({ files = {}, links = {}, onAddFile, onRe
                   </div>
                 )}
 
-                {/* Cloud Link Input */}
-                <div className="relative">
-                  <LinkIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="url"
-                    placeholder="Atau tempel tautan folder Google Drive / OneDrive (https://...)"
-                    value={docLink}
-                    onChange={(e) => onChangeLink(doc.key, e.target.value)}
-                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all"
-                  />
-                </div>
+
               </div>
             </div>
           );

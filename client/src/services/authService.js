@@ -117,3 +117,46 @@ export async function logoutUser() {
     clearStoredSession();
   }
 }
+
+export async function updateUserProfile({ nama, nip }) {
+  const token = getStoredToken();
+  if (!token) throw new Error('Sesi masuk tidak ditemukan.');
+
+  const res = await fetch(`${API_BASE}/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ nama, nip })
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Gagal memperbarui profil.');
+  }
+
+  setStoredSession(token, data.data.user);
+  return data.data.user;
+}
+
+export async function changeUserPassword({ currentPassword, newPassword, confirmPassword }) {
+  const token = getStoredToken();
+  if (!token) throw new Error('Sesi masuk tidak ditemukan.');
+
+  const res = await fetch(`${API_BASE}/auth/password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Gagal mengganti kata sandi.');
+  }
+
+  return data;
+}

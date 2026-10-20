@@ -1,5 +1,5 @@
-import React from 'react';
-import { Printer, Download, History, Award, FileText, LogIn, LogOut, UserPlus, LayoutDashboard } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Printer, Download, History, Award, FileText, LogIn, LogOut, UserPlus, LayoutDashboard, ChevronDown, User, Shield } from 'lucide-react';
 import { useNotification } from '../../hooks/useNotification';
 import { useAuth } from '../../hooks/useAuth';
 import { exportAssessmentsToCSV } from '../../services/assessmentService';
@@ -12,6 +12,18 @@ export default function Navbar({
 }) {
   const { showNotification } = useNotification();
   const { user, isAuthenticated, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleExportCSV = () => {
     const csvData = exportAssessmentsToCSV();
@@ -169,8 +181,17 @@ export default function Navbar({
             <div className="h-5 w-px bg-slate-200 mx-0.5 hidden sm:block" />
 
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-1 sm:gap-2">
-                <div className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="relative flex items-center gap-1 sm:gap-2" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className={`flex items-center gap-2 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    isDropdownOpen || appMode === 'profile'
+                      ? 'bg-slate-100 border-cyan-700/40 ring-2 ring-cyan-700/10 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                  }`}
+                  title="Klik untuk membuka menu profil"
+                >
                   <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${
                     user.role === 'admin'
                       ? 'bg-amber-600 text-white'
@@ -186,7 +207,60 @@ export default function Navbar({
                       {user.role === 'admin' ? 'Admin' : user.role === 'penilai' ? 'Penilai' : 'Pendaftar'}
                     </span>
                   </div>
-                </div>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180 text-cyan-800' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50">
+                    <div className="px-4 py-3 border-b border-slate-100">
+                      <p className="text-xs font-bold text-slate-900 truncate">{user.nama}</p>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">{user.email}</p>
+                      <div className="mt-2">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                          user.role === 'admin'
+                            ? 'bg-amber-50 text-amber-800 border-amber-200'
+                            : user.role === 'penilai'
+                            ? 'bg-slate-100 text-slate-800 border-slate-200'
+                            : 'bg-cyan-50 text-cyan-900 border-cyan-200'
+                        }`}>
+                          <Shield className="w-2.5 h-2.5" />
+                          <span>{user.role === 'admin' ? 'Administrator' : user.role === 'penilai' ? 'Dewan Juri' : 'Pendaftar Inisiatif'}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-1.5 space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          if (onSelectAppMode) onSelectAppMode('profile');
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left ${
+                          appMode === 'profile'
+                            ? 'bg-cyan-50 text-cyan-900 font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <User className="w-4 h-4 text-cyan-700" />
+                        <span>Profil & Pengaturan Akun</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-500" />
+                        <span>Keluar dari Akun</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="button"

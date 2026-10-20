@@ -8,6 +8,8 @@ router.post('/auth/register', registerLimiter.middleware(), authController.regis
 router.post('/auth/login', loginLimiter.middleware(), authController.login);
 router.get('/auth/me', authController.me);
 router.post('/auth/logout', authController.logout);
+router.put('/auth/profile', authController.updateProfile);
+router.put('/auth/password', authController.changePassword);
 
 // Admin user management
 router.get('/auth/users', authController.getUsers);

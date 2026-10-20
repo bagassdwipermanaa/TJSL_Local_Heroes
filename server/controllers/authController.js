@@ -239,5 +239,92 @@ export const authController = {
       console.error('[authController.deleteUser] Error:', err);
       return res.status(500).json({ success: false, message: 'Gagal menghapus pengguna: ' + err.message });
     }
+  },
+
+  updateProfile: async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : (req.body?.token || '');
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Token otentikasi diperlukan.' });
+      }
+
+      const user = await UserModel.findByToken(token);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Sesi tidak valid atau telah berakhir.' });
+      }
+
+      const { nama, nip } = req.body;
+      if (!nama || !nama.trim()) {
+        return res.status(400).json({ success: false, message: 'Nama lengkap wajib diisi.' });
+      }
+
+      const updated = await UserModel.updateProfile(user.id, {
+        nama: nama.trim(),
+        nip: (nip || '').trim()
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Profil berhasil diperbarui.',
+        data: {
+          user: {
+            ...updated,
+            role: normalizeRole(updated.role)
+          }
+        }
+      });
+    } catch (err) {
+      console.error('[authController.updateProfile] Error:', err);
+      return res.status(500).json({ success: false, message: 'Gagal memperbarui profil: ' + err.message });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : (req.body?.token || '');
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Token otentikasi diperlukan.' });
+      }
+
+      const user = await UserModel.findByToken(token);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Sesi tidak valid atau telah berakhir.' });
+      }
+
+      const fullUser = await UserModel.findByEmail(user.email);
+      if (!fullUser) {
+        return res.status(404).json({ success: false, message: 'Pengguna tidak ditemukan.' });
+      }
+
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Kata sandi saat ini dan kata sandi baru wajib diisi.' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, message: 'Kata sandi baru minimal 6 karakter.' });
+      }
+
+      if (confirmPassword && newPassword !== confirmPassword) {
+        return res.status(400).json({ success: false, message: 'Konfirmasi kata sandi tidak cocok.' });
+      }
+
+      const isValid = verifyPassword(currentPassword, fullUser.password_hash, fullUser.salt);
+      if (!isValid) {
+        return res.status(400).json({ success: false, message: 'Kata sandi saat ini tidak sesuai.' });
+      }
+
+      await UserModel.updatePassword(user.id, newPassword);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Kata sandi berhasil diperbarui.'
+      });
+    } catch (err) {
+      console.error('[authController.changePassword] Error:', err);
+      return res.status(500).json({ success: false, message: 'Gagal memperbarui kata sandi: ' + err.message });
+    }
   }
 };
