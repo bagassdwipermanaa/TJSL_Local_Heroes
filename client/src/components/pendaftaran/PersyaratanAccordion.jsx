@@ -55,9 +55,7 @@ export default function PersyaratanAccordion() {
               </div>
               <ul className="text-xs text-slate-600 space-y-1.5 pl-4 list-disc">
                 <li>Kegiatan sudah berjalan minimal 6 bulan secara berkesinambungan dan masih aktif.</li>
-                <li>Memiliki catatan pelaksanaan (logbook, jadwal rutin, atau daftar kegiatan).</li>
-                <li>Dokumentasi foto/video dengan keterangan waktu & lokasi dari beberapa periode berbeda.</li>
-                <li>Lokasi dapat dikunjungi dan bersedia diverifikasi lapangan oleh tim juri.</li>
+                <li>Lokasi kegiatan dapat dikunjungi dan bersedia diverifikasi lapangan oleh tim juri/penilai.</li>
               </ul>
             </div>
 

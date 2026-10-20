@@ -32,19 +32,15 @@ export default function AdministrasiPage({
     if (raw[0] == null && (assessment?.ident?.statuspeg || assessment?.ident?.nip)) {
       raw[0] = true;
     }
-    // Auto-sync item 1 if peran narrative or documents exist
-    if (raw[1] == null && (assessment?.ident?.peran || assessment?.regFiles?.dokumentasi || assessment?.regFiles?.logbook || assessment?.decl?.[0])) {
+    // Auto-sync item 1 if rekomendasi letter or atasan exists
+    if (raw[1] == null && (assessment?.adminFiles?.[1] || assessment?.regFiles?.rekomendasi?.length > 0 || assessment?.ident?.atasan)) {
       raw[1] = true;
     }
-    // Auto-sync item 2 if rekomendasi letter or atasan exists
-    if (raw[2] == null && (assessment?.adminFiles?.[2] || assessment?.regFiles?.rekomendasi?.length > 0 || assessment?.ident?.atasan)) {
-      raw[2] = true;
-    }
-    // Auto-sync declaration items 3..7
+    // Auto-sync declaration items 2..6
     if (Array.isArray(assessment?.decl)) {
       assessment.decl.forEach((val, idx) => {
-        if (idx < 5 && raw[3 + idx] == null) {
-          raw[3 + idx] = Boolean(val);
+        if (idx < 5 && raw[2 + idx] == null) {
+          raw[2 + idx] = Boolean(val);
         }
       });
     }
@@ -229,20 +225,8 @@ export default function AdministrasiPage({
                               </div>
                             )}
 
-                              {/* Tampilkan Narasi Peran Langsung dari Form Pendaftaran jika item adm-2 */}
-                            {currentIndex === 1 && assessment?.ident?.peran && (
-                              <div className="mt-2 p-2.5 rounded-lg bg-cyan-50/50 border border-cyan-100/80 text-xs">
-                                <span className="text-[10px] uppercase font-bold text-cyan-900 block mb-0.5">
-                                  Uraian Pengusul di Form Pendaftaran (Bagian 3: Peran Langsung):
-                                </span>
-                                <p className="text-slate-700 italic leading-relaxed line-clamp-3">
-                                  "{assessment.ident.peran}"
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Tampilkan Atasan Langsung dari Form Pendaftaran jika item adm-3 (Surat Rekomendasi) */}
-                            {currentIndex === 2 && (assessment?.ident?.atasan || assessment?.regData?.atasan) && (
+                            {/* Tampilkan Atasan Langsung dari Form Pendaftaran jika item adm-2 (Surat Rekomendasi) */}
+                            {currentIndex === 1 && (assessment?.ident?.atasan || assessment?.regData?.atasan) && (
                               <div className="mt-2 p-2.5 rounded-lg bg-cyan-50/50 border border-cyan-100/80 text-xs">
                                 <span className="text-[10px] uppercase font-bold text-cyan-900 block mb-0.5">
                                   Atasan Langsung Pengusul (Form Pendaftaran Bagian 1):
@@ -292,13 +276,13 @@ export default function AdministrasiPage({
                         {(() => {
                           const filesToShow = [];
                           if (currentIndex === 1) {
-                            if (assessment?.regFiles?.dokumentasi?.[0]) filesToShow.push(assessment.regFiles.dokumentasi[0]);
-                            if (assessment?.regFiles?.logbook?.[0]) filesToShow.push(assessment.regFiles.logbook[0]);
-                          } else if (currentIndex === 2) {
-                            if (assessment?.regFiles?.rekomendasi?.[0]) filesToShow.push(assessment.regFiles.rekomendasi[0]);
-                          }
-                          if (attachedFile && !filesToShow.some((f) => f.filename === attachedFile.filename)) {
-                            filesToShow.unshift(attachedFile);
+                            if (assessment?.regFiles?.rekomendasi?.[0]) {
+                              filesToShow.push(assessment.regFiles.rekomendasi[0]);
+                            } else if (attachedFile) {
+                              filesToShow.push(attachedFile);
+                            }
+                          } else if (attachedFile) {
+                            filesToShow.push(attachedFile);
                           }
 
                           if (filesToShow.length > 0) {

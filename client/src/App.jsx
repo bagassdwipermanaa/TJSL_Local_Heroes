@@ -361,27 +361,18 @@ export default function App() {
       admin[0] = true;
     }
 
-    // adm-1: Berperan langsung sebagai penggagas/penggerak (Uraian peran & Pernyataan Poin 1 & Dokumentasi/Logbook)
-    if (d.peran || (Array.isArray(reg.decl) && reg.decl[0])) {
-      admin[1] = true;
-    }
-    const dokFile = (regFiles.dokumentasi && regFiles.dokumentasi[0]) || (regFiles.logbook && regFiles.logbook[0]);
-    if (dokFile) {
-      adminFiles[1] = { ...dokFile, url: dokFile.url || (dokFile.filename ? `/uploads/${dokFile.filename}` : '') };
-    }
-
-    // adm-2: Surat rekomendasi pimpinan unit
+    // adm-1: Surat rekomendasi pimpinan unit
     if (regFiles.rekomendasi && regFiles.rekomendasi.length > 0) {
       const f = regFiles.rekomendasi[0];
-      adminFiles[2] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
-      admin[2] = true;
+      adminFiles[1] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
+      admin[1] = true;
     }
 
-    // adm-3 s/d adm-7: Pernyataan Integritas & Keaslian Dokumen (5 butir dari Bagian 5)
+    // adm-2 s/d adm-6: Pernyataan Integritas & Keaslian Dokumen (5 butir dari Bagian 5)
     if (Array.isArray(reg.decl)) {
       reg.decl.forEach((val, idx) => {
         if (idx < 5) {
-          admin[3 + idx] = Boolean(val);
+          admin[2 + idx] = Boolean(val);
         }
       });
     }

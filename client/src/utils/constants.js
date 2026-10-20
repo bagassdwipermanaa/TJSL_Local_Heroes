@@ -41,11 +41,6 @@ export const ADMIN_CHECKLIST = [
       },
       {
         id: "adm-2",
-        title: "Berperan langsung sebagai penggagas, penggerak, atau pelaksana aktif (bukan hanya donatur)",
-        evidence: "Uraian peran dan dokumentasi kegiatan"
-      },
-      {
-        id: "adm-3",
         title: "Mendapat rekomendasi atasan langsung atau pimpinan unit",
         evidence: "Surat rekomendasi / persetujuan resmi"
       }
@@ -57,35 +52,35 @@ export const ADMIN_CHECKLIST = [
     isDeclarationGroup: true,
     items: [
       {
-        id: "adm-4",
+        id: "adm-3",
         declIndex: 0,
         number: 1,
         title: "Saya adalah pegawai/TAD aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
         evidence: "Pernyataan Integritas Butir [1] Formulir Pendaftaran"
       },
       {
-        id: "adm-5",
+        id: "adm-4",
         declIndex: 1,
         number: 2,
         title: "Kegiatan ini saya lakukan secara sukarela dan bukan bagian dari tugas jabatan atau proyek TJSL yang didanai penuh perusahaan.",
         evidence: "Pernyataan Integritas Butir [2] Formulir Pendaftaran"
       },
       {
-        id: "adm-6",
+        id: "adm-5",
         declIndex: 2,
         number: 3,
         title: "Kegiatan ini tidak mengandung unsur politik praktis, SARA, maupun kepentingan komersial pribadi.",
         evidence: "Pernyataan Integritas Butir [3] Formulir Pendaftaran"
       },
       {
-        id: "adm-7",
+        id: "adm-6",
         declIndex: 3,
         number: 4,
         title: "Kegiatan masih aktif, lokasinya dapat dikunjungi, dan saya bersedia diverifikasi lapangan oleh tim penilai.",
         evidence: "Pernyataan Integritas Butir [4] Formulir Pendaftaran"
       },
       {
-        id: "adm-8",
+        id: "adm-7",
         declIndex: 4,
         number: 5,
         title: "Seluruh dokumen dan informasi yang saya sampaikan benar. Apabila ditemukan ketidaksesuaian saat verifikasi, saya bersedia didiskualifikasi.",

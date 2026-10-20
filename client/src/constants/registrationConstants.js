@@ -39,18 +39,6 @@ export const REGISTRATION_DOCS = [
     label: "Surat rekomendasi atasan langsung / pimpinan unit",
     hint: "PDF atau foto surat rekomendasi atau persetujuan yang ditandatangani.",
     required: true
-  },
-  {
-    key: "logbook",
-    label: "Catatan pelaksanaan kegiatan",
-    hint: "Logbook, jadwal rutin, atau daftar kegiatan yang menunjukkan frekuensi dan konsistensi pelaksanaan.",
-    required: true
-  },
-  {
-    key: "dokumentasi",
-    label: "Dokumentasi kegiatan",
-    hint: "Foto/video dengan keterangan waktu dan lokasi dari beberapa periode berbeda, dari awal hingga saat ini.",
-    required: true
   }
 ];
 
