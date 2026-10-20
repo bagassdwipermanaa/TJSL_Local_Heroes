@@ -208,28 +208,7 @@ export default function App() {
     });
   };
 
-  // Attach uploaded proof file for admin item
-  const handleAttachAdminFile = (index, fileData) => {
-    setCurrentAssessment(prev => ({
-      ...prev,
-      adminFiles: {
-        ...(prev.adminFiles || {}),
-        [index]: fileData
-      }
-    }));
-  };
 
-  // Remove uploaded proof file
-  const handleRemoveAdminFile = (index) => {
-    setCurrentAssessment(prev => {
-      const nextFiles = { ...(prev.adminFiles || {}) };
-      delete nextFiles[index];
-      return {
-        ...prev,
-        adminFiles: nextFiles
-      };
-    });
-  };
 
   // Update criterion score in a stage
   const handleScoreChange = (stageKey, criterionIndex, scoreValue) => {
@@ -346,7 +325,7 @@ export default function App() {
   };
 
   // Link participant registration to current assessment
-  const handleSelectRegistrationForAssessment = useCallback((reg) => {
+  const handleSelectRegistrationForAssessment = useCallback((reg, silent = false) => {
     if (!reg) {
       setCurrentAssessment(createBlankAssessment());
       return;
@@ -359,79 +338,163 @@ export default function App() {
       (a.ident?.nama && d.nama && a.ident.nama.toLowerCase().trim() === d.nama.toLowerCase().trim())
     );
 
-    if (existing) {
-      setCurrentAssessment({
-        ...existing,
-        registrationId: reg.id
-      });
-      showNotification({
-        type: 'info',
-        title: 'Penilaian Dimuat',
-        message: `Memuat lembar penilaian tersimpan untuk "${d.nama || 'Peserta'}".`
-      });
-      return;
-    }
-
     const loc = [d.desa, d.kecamatan, d.kabkota, d.provinsi].filter(Boolean).join(', ') || d.lokasi || '';
 
+    // Map SDGs correctly whether stored at root (reg.sdgs) or in data (d.sdgs)
+    const rawSdgs = Array.isArray(reg.sdgs) ? reg.sdgs : (Array.isArray(d.sdgs) ? d.sdgs : []);
     let sdgText = '';
-    if (Array.isArray(d.sdgs) && d.sdgs.length > 0) {
-      const idx = d.sdgs[0];
-      sdgText = SDGS_OPTIONS.find(s => s.startsWith(`${idx}.`)) || (REGISTRATION_SDGS[idx - 1] ? `${idx}. ${REGISTRATION_SDGS[idx - 1]}` : '');
+    if (rawSdgs.length > 0) {
+      sdgText = rawSdgs.map(idx => {
+        return SDGS_OPTIONS.find(s => s.startsWith(`${idx}.`)) || (REGISTRATION_SDGS[idx - 1] ? `${idx}. ${REGISTRATION_SDGS[idx - 1]}` : `SDG ${idx}`);
+      }).join(', ');
     } else if (typeof d.sdgs === 'string') {
       sdgText = d.sdgs;
     }
 
     // Auto map uploaded registration files to adminFiles & checklist
-    const regFiles = reg.files || {};
+    const regFiles = reg.files || d.files || {};
     const adminFiles = {};
     const admin = Array(TOTAL_ADMIN_ITEMS).fill(null);
 
+    // adm-0: Pegawai / TAD aktif (terverifikasi dari data kepegawaian & NIP)
+    if (d.statuspeg || d.nip) {
+      admin[0] = true;
+    }
+
+    // adm-1: Berperan langsung sebagai penggagas/penggerak (Uraian peran & Pernyataan Poin 1 & Dokumentasi/Logbook)
+    if (d.peran || (Array.isArray(reg.decl) && reg.decl[0])) {
+      admin[1] = true;
+    }
+    const dokFile = (regFiles.dokumentasi && regFiles.dokumentasi[0]) || (regFiles.logbook && regFiles.logbook[0]);
+    if (dokFile) {
+      adminFiles[1] = { ...dokFile, url: dokFile.url || (dokFile.filename ? `/uploads/${dokFile.filename}` : '') };
+    }
+
+    // adm-2: Surat rekomendasi pimpinan unit
     if (regFiles.rekomendasi && regFiles.rekomendasi.length > 0) {
       const f = regFiles.rekomendasi[0];
       adminFiles[2] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
       admin[2] = true;
     }
-    if (regFiles.logbook && regFiles.logbook.length > 0) {
-      const f = regFiles.logbook[0];
-      adminFiles[3] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
-      admin[3] = true;
+
+    // adm-3 s/d adm-7: Pernyataan Integritas & Keaslian Dokumen (5 butir dari Bagian 5)
+    if (Array.isArray(reg.decl)) {
+      reg.decl.forEach((val, idx) => {
+        if (idx < 5) {
+          admin[3 + idx] = Boolean(val);
+        }
+      });
     }
-    if (regFiles.dokumentasi && regFiles.dokumentasi.length > 0) {
-      const f = regFiles.dokumentasi[0];
-      adminFiles[4] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
-      admin[4] = true;
+
+    const mergedIdent = {
+      nama: d.nama || '',
+      nip: d.nip || '',
+      jabatan: d.jabatan || '',
+      unit: d.unit || '',
+      atasan: d.atasan || '',
+      email: d.email || '',
+      hp: d.hp || '',
+      komunitas: d.komunitas || d.nama_komunitas || '',
+      program: d.program || '',
+      lokasi: loc,
+      mulai: d.mulai || '',
+      frekuensi: d.frekuensi || '',
+      penerima: d.penerima_jiwa || d.penerima || '',
+      sdgs: sdgText,
+      pilar: d.pilar || 'Sosial',
+      statuspeg: d.statuspeg || (d.nip?.startsWith('TAD') ? 'TAD' : 'Pegawai'),
+      kategori: d.kategori || (d.statuspeg === 'TAD' ? 'TAD' : 'Individu'),
+      peran: d.peran || '',
+      kegiatan: d.kegiatan || '',
+      masalah: d.masalah || '',
+      dampak: d.dampak || '',
+      keberlanjutan: d.keberlanjutan || '',
+      inovasi: d.inovasi || '',
+      mitra: d.mitra || ''
+    };
+
+    try {
+      localStorage.setItem('active_assessment_reg_id', reg.id);
+    } catch {
+      // silent
+    }
+
+    if (existing) {
+      setCurrentAssessment({
+        ...existing,
+        registrationId: reg.id,
+        regData: d,
+        regFiles,
+        decl: reg.decl || existing.decl || [],
+        admin: existing.admin || admin,
+        adminFiles: { ...adminFiles, ...(existing.adminFiles || {}) },
+        ident: {
+          ...mergedIdent,
+          ...(existing.ident || {})
+        }
+      });
+      if (!silent) {
+        showNotification({
+          type: 'info',
+          title: 'Penilaian Dimuat',
+          message: `Memuat lembar penilaian tersimpan untuk "${d.nama || 'Peserta'}".`
+        });
+      }
+      return;
     }
 
     const newAssessment = {
       ...createBlankAssessment(),
       registrationId: reg.id,
-      ident: {
-        nama: d.nama || '',
-        nip: d.nip || '',
-        unit: d.unit || '',
-        komunitas: d.komunitas || d.nama_komunitas || '',
-        program: d.program || '',
-        lokasi: loc,
-        mulai: d.mulai || '',
-        penerima: d.penerima_jiwa || d.penerima || '',
-        sdgs: sdgText,
-        pilar: d.pilar || 'Sosial',
-        kategori: d.statuspeg === 'TAD' ? 'TAD' : 'Individu'
-      },
+      ident: mergedIdent,
+      regData: d,
+      regFiles,
       admin,
       adminFiles,
+      decl: reg.decl || [],
       juri: user?.nama || '',
       updatedAt: new Date().toISOString()
     };
 
     setCurrentAssessment(newAssessment);
-    showNotification({
-      type: 'success',
-      title: 'Peserta Terpilih',
-      message: `Data peserta "${d.nama || 'Inisiatif'}" berhasil dimuat ke lembar penilaian.`
-    });
+    if (!silent) {
+      showNotification({
+        type: 'success',
+        title: 'Peserta Terpilih',
+        message: `Data peserta "${d.nama || 'Inisiatif'}" berhasil dimuat ke lembar penilaian.`
+      });
+    }
   }, [assessments, user, showNotification]);
+
+  // Auto-connect registration if currentAssessment is blank or lacks registrationId in penilaian mode
+  useEffect(() => {
+    if (appMode !== 'penilaian') return;
+    if (!Array.isArray(registrations) || registrations.length === 0) return;
+    if (currentAssessment?.registrationId && currentAssessment?.ident?.nama) return;
+
+    let target = null;
+    const savedRegId = localStorage.getItem('active_assessment_reg_id');
+    if (savedRegId) {
+      target = registrations.find(r => r.id === savedRegId);
+    }
+    if (!target) {
+      const activeUser = user || getStoredUser();
+      if (activeUser?.nip || activeUser?.email) {
+        target = registrations.find(r => 
+          (activeUser.nip && r.data?.nip === activeUser.nip) ||
+          (activeUser.email && r.data?.email === activeUser.email) ||
+          (activeUser.id && r.userId === activeUser.id)
+        );
+      }
+    }
+    if (!target) {
+      target = registrations.find(r => r.status === 'terkirim') || registrations[0];
+    }
+
+    if (target) {
+      handleSelectRegistrationForAssessment(target, true);
+    }
+  }, [appMode, registrations, currentAssessment, user, handleSelectRegistrationForAssessment]);
 
   // Open existing assessment
   const handleOpenAssessment = (id) => {
@@ -588,8 +651,6 @@ export default function App() {
                 <AdministrasiPage
                   assessment={currentAssessment}
                   onChangeAdminItem={handleAdminChange}
-                  onAttachAdminFile={handleAttachAdminFile}
-                  onRemoveAdminFile={handleRemoveAdminFile}
                   onChangeField={handleFieldChange}
                   onNext={() => handleSelectStep('nilai')}
                   onPrev={() => handleSelectStep('identitas')}
@@ -621,6 +682,8 @@ export default function App() {
             <div className="w-full lg:w-[360px] xl:w-[380px] shrink-0 lg:sticky lg:top-24 z-10">
               <ScoreSidebar
                 assessment={currentAssessment}
+                registrations={registrations}
+                onSelectRegistration={handleSelectRegistrationForAssessment}
                 onSave={handleSave}
                 onReset={handleResetForm}
                 onGoToStep={handleSelectStep}

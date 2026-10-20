@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   ShieldCheck,
   Check,
@@ -8,31 +8,49 @@ import {
   ArrowLeft,
   FileText,
   CheckCircle2,
-  Upload,
   Paperclip,
   ExternalLink,
-  Trash2,
-  Loader2
+  Shield
 } from 'lucide-react';
 import { ADMIN_CHECKLIST, TOTAL_ADMIN_ITEMS } from '../utils/constants';
 import { getAdminStatus } from '../utils/scoring';
-import { uploadFile, deleteUploadedFile } from '../services/uploadService';
-import { useNotification } from '../hooks/useNotification';
 import { API_BASE } from '../config';
 
 export default function AdministrasiPage({
   assessment,
   onChangeAdminItem,
-  onAttachAdminFile,
-  onRemoveAdminFile,
   onChangeField,
   onNext,
   onPrev
 }) {
-  const { showNotification } = useNotification();
-  const [uploadingIndex, setUploadingIndex] = useState(null);
+  const adminState = useMemo(() => {
+    const raw = [...(assessment?.admin || [])];
+    while (raw.length < TOTAL_ADMIN_ITEMS) {
+      raw.push(null);
+    }
+    // Auto-sync item 0 if employee status/NIP exists
+    if (raw[0] == null && (assessment?.ident?.statuspeg || assessment?.ident?.nip)) {
+      raw[0] = true;
+    }
+    // Auto-sync item 1 if peran narrative or documents exist
+    if (raw[1] == null && (assessment?.ident?.peran || assessment?.regFiles?.dokumentasi || assessment?.regFiles?.logbook || assessment?.decl?.[0])) {
+      raw[1] = true;
+    }
+    // Auto-sync item 2 if rekomendasi letter or atasan exists
+    if (raw[2] == null && (assessment?.adminFiles?.[2] || assessment?.regFiles?.rekomendasi?.length > 0 || assessment?.ident?.atasan)) {
+      raw[2] = true;
+    }
+    // Auto-sync declaration items 3..7
+    if (Array.isArray(assessment?.decl)) {
+      assessment.decl.forEach((val, idx) => {
+        if (idx < 5 && raw[3 + idx] == null) {
+          raw[3 + idx] = Boolean(val);
+        }
+      });
+    }
+    return raw;
+  }, [assessment]);
 
-  const adminState = assessment?.admin || [];
   const adminFiles = assessment?.adminFiles || {};
   const status = getAdminStatus(adminState);
 
@@ -45,51 +63,8 @@ export default function AdministrasiPage({
     const path = typeof input === 'string' ? input : (input.url || (input.filename ? `/uploads/${input.filename}` : ''));
     if (!path) return '#';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    // Strip '/api' from API_BASE to get backend origin
     const origin = API_BASE.replace(/\/api\/?$/, '');
     return `${origin}${path.startsWith('/') ? '' : '/'}${path}`;
-  };
-
-  const handleFileUpload = async (index, event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadingIndex(index);
-    try {
-      const uploaded = await uploadFile(file);
-      onAttachAdminFile(index, uploaded);
-      // Automatically mark as "Ada" if file successfully attached
-      onChangeAdminItem(index, true);
-
-      showNotification({
-        type: 'success',
-        title: 'Berkas Bukti Terunggah',
-        message: `Berkas "${file.name}" berhasil diunggah dan diverifikasi.`
-      });
-    } catch (err) {
-      showNotification({
-        type: 'error',
-        title: 'Gagal Mengunggah Berkas',
-        message: err.message || 'Terjadi kesalahan saat mengunggah berkas ke server.'
-      });
-    } finally {
-      setUploadingIndex(null);
-      event.target.value = '';
-    }
-  };
-
-  const handleFileRemove = async (index, fileData) => {
-    if (window.confirm(`Hapus berkas bukti "${fileData.originalName || fileData.filename}"?`)) {
-      if (fileData.filename) {
-        await deleteUploadedFile(fileData.filename);
-      }
-      onRemoveAdminFile(index);
-      showNotification({
-        type: 'warning',
-        title: 'Berkas Bukti Dihapus',
-        message: `Berkas "${fileData.originalName || fileData.filename}" telah dihapus.`
-      });
-    }
   };
 
   let globalIndex = 0;
@@ -152,10 +127,17 @@ export default function AdministrasiPage({
         {ADMIN_CHECKLIST.map((group) => (
           <div key={group.group} className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                {group.group}
-              </h3>
-              <span className="text-[11px] font-semibold text-slate-500">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  {group.group}
+                </h3>
+                {group.subtitle && (
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {group.subtitle}
+                  </p>
+                )}
+              </div>
+              <span className="text-[11px] font-semibold text-slate-500 shrink-0">
                 {group.items.length} Butir
               </span>
             </div>
@@ -165,7 +147,13 @@ export default function AdministrasiPage({
                 const currentIndex = globalIndex++;
                 const currentValue = adminState[currentIndex];
                 const attachedFile = adminFiles[currentIndex];
-                const isUploading = uploadingIndex === currentIndex;
+                const isDeclaration = !!group.isDeclarationGroup;
+                const declIdx = item.declIndex;
+                const isAgreed = isDeclaration
+                  ? (Array.isArray(assessment?.decl) ? assessment.decl[declIdx] === true : false)
+                  : false;
+                const isPass = currentValue === true || (currentValue == null && isDeclaration && isAgreed);
+                const isFail = currentValue === false || (currentValue == null && isDeclaration && !isAgreed && assessment?.decl?.length);
 
                 return (
                   <div
@@ -174,13 +162,98 @@ export default function AdministrasiPage({
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex-1 pr-2">
-                        <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                          {item.title}
-                        </p>
-                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>Bukti Wajib: {item.evidence}</span>
-                        </p>
+                        {isDeclaration ? (
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`w-5 h-5 rounded flex items-center justify-center shrink-0 mt-0.5 text-white shadow-2xs ${
+                                isAgreed ? 'bg-cyan-600' : 'bg-slate-300'
+                              }`}
+                              title={isAgreed ? 'Dicentang oleh pengusul' : 'Tidak dicentang'}
+                            >
+                              {isAgreed ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : null}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
+                                <span className="font-bold text-cyan-800 mr-1.5">[{item.number || (declIdx + 1)}]</span>
+                                {item.title}
+                              </p>
+                              <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+                                {isAgreed ? (
+                                  <span className="inline-flex items-center gap-1 font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    Disetujui Pengusul pada Formulir Pendaftaran (Bagian 5)
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                    Belum dicentang oleh pengusul
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>Bukti Wajib: {item.evidence}</span>
+                            </p>
+
+                            {/* Tampilkan Sinkronisasi Status Kepegawaian jika item adm-1 (currentIndex === 0) */}
+                            {currentIndex === 0 && (
+                              <div className="mt-2 p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200/80 text-xs">
+                                <span className="text-[10px] uppercase font-bold text-emerald-900 block mb-0.5">
+                                  Sinkronisasi Form Pendaftaran (Bagian 1: Status Kepegawaian):
+                                </span>
+                                <div className="flex flex-wrap items-center gap-2 text-slate-800">
+                                  <span className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-2xs">
+                                    <Shield className="w-3 h-3 text-emerald-600" />
+                                    {assessment?.ident?.statuspeg === 'TAD' || assessment?.ident?.kategori === 'TAD'
+                                      ? 'TAD / Mitra Kerja'
+                                      : 'Pegawai Organik'}
+                                  </span>
+                                  {assessment?.ident?.nip && (
+                                    <span className="text-slate-600">
+                                      • NIP/ID: <strong className="text-slate-900">{assessment.ident.nip}</strong>
+                                    </span>
+                                  )}
+                                  {assessment?.ident?.unit && (
+                                    <span className="text-slate-600 truncate max-w-xs">
+                                      • Unit: {assessment.ident.unit}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                              {/* Tampilkan Narasi Peran Langsung dari Form Pendaftaran jika item adm-2 */}
+                            {currentIndex === 1 && assessment?.ident?.peran && (
+                              <div className="mt-2 p-2.5 rounded-lg bg-cyan-50/50 border border-cyan-100/80 text-xs">
+                                <span className="text-[10px] uppercase font-bold text-cyan-900 block mb-0.5">
+                                  Uraian Pengusul di Form Pendaftaran (Bagian 3: Peran Langsung):
+                                </span>
+                                <p className="text-slate-700 italic leading-relaxed line-clamp-3">
+                                  "{assessment.ident.peran}"
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Tampilkan Atasan Langsung dari Form Pendaftaran jika item adm-3 (Surat Rekomendasi) */}
+                            {currentIndex === 2 && (assessment?.ident?.atasan || assessment?.regData?.atasan) && (
+                              <div className="mt-2 p-2.5 rounded-lg bg-cyan-50/50 border border-cyan-100/80 text-xs">
+                                <span className="text-[10px] uppercase font-bold text-cyan-900 block mb-0.5">
+                                  Atasan Langsung Pengusul (Form Pendaftaran Bagian 1):
+                                </span>
+                                <span className="font-semibold text-slate-800">
+                                  {assessment.ident.atasan || assessment.regData.atasan}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
 
                       {/* Action buttons: Ada / Tidak Ada */}
@@ -189,7 +262,7 @@ export default function AdministrasiPage({
                           type="button"
                           onClick={() => onChangeAdminItem(currentIndex, true)}
                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                            currentValue === true
+                            isPass
                               ? 'bg-emerald-600 text-white shadow-xs'
                               : 'text-slate-600 hover:text-slate-900'
                           }`}
@@ -202,7 +275,7 @@ export default function AdministrasiPage({
                           type="button"
                           onClick={() => onChangeAdminItem(currentIndex, false)}
                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                            currentValue === false
+                            isFail
                               ? 'bg-rose-600 text-white shadow-xs'
                               : 'text-slate-600 hover:text-slate-900'
                           }`}
@@ -213,71 +286,78 @@ export default function AdministrasiPage({
                       </div>
                     </div>
 
-                    {/* Upload / Attached File Row */}
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                      {attachedFile ? (
-                        <div className="flex items-center gap-2 bg-cyan-50/70 border border-cyan-200/80 rounded-lg px-2.5 py-1 text-xs text-cyan-900 max-w-full">
-                          <Paperclip className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
-                          <a
-                            href={getBackendUrl(attachedFile)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-semibold truncate max-w-xs hover:underline hover:text-cyan-950 transition-colors"
-                            title={`Buka / Unduh Berkas: ${attachedFile.originalName}`}
-                          >
-                            {attachedFile.originalName}
-                          </a>
-                          {attachedFile.size && (
-                            <span className="text-[10px] text-cyan-600 shrink-0">
-                              ({(attachedFile.size / 1024).toFixed(0)} KB)
+                    {/* Baris Berkas Bukti Lampiran Pendaftar - Hanya untuk grup bukti dokumen */}
+                    {!isDeclaration && (
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                        {(() => {
+                          const filesToShow = [];
+                          if (currentIndex === 1) {
+                            if (assessment?.regFiles?.dokumentasi?.[0]) filesToShow.push(assessment.regFiles.dokumentasi[0]);
+                            if (assessment?.regFiles?.logbook?.[0]) filesToShow.push(assessment.regFiles.logbook[0]);
+                          } else if (currentIndex === 2) {
+                            if (assessment?.regFiles?.rekomendasi?.[0]) filesToShow.push(assessment.regFiles.rekomendasi[0]);
+                          }
+                          if (attachedFile && !filesToShow.some((f) => f.filename === attachedFile.filename)) {
+                            filesToShow.unshift(attachedFile);
+                          }
+
+                          if (filesToShow.length > 0) {
+                            return (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {filesToShow.map((f, fIdx) => (
+                                  <div
+                                    key={fIdx}
+                                    className="flex items-center gap-2 bg-cyan-50/70 border border-cyan-200/80 rounded-lg px-2.5 py-1 text-xs text-cyan-900 max-w-full"
+                                  >
+                                    <Paperclip className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
+                                    <a
+                                      href={getBackendUrl(f)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold truncate max-w-xs hover:underline hover:text-cyan-950 transition-colors"
+                                      title={`Buka / Unduh Berkas: ${f.originalName || f.filename}`}
+                                    >
+                                      {f.originalName || f.filename}
+                                    </a>
+                                    {f.size && (
+                                      <span className="text-[10px] text-cyan-600 shrink-0">
+                                        ({(f.size / 1024).toFixed(0)} KB)
+                                      </span>
+                                    )}
+                                    <a
+                                      href={getBackendUrl(f)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 font-bold text-cyan-700 hover:text-cyan-900 transition-colors ml-1"
+                                      title="Buka / Unduh Berkas Lampiran Pendaftar"
+                                    >
+                                      <span>Buka Dokumen</span>
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          }
+
+                          if (currentIndex === 0) {
+                            return (
+                              <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 inline-flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                Terverifikasi otomatis dari Profil Pengusul (NIP/ID: {assessment?.ident?.nip || '-'}, Status: {assessment?.ident?.statuspeg || 'Pegawai Organik'})
+                              </span>
+                            );
+                          }
+
+                          return (
+                            <span className="text-xs text-slate-400 italic flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-slate-300" />
+                              Belum ada dokumen yang dilampirkan pendaftar
                             </span>
-                          )}
-                          <a
-                            href={getBackendUrl(attachedFile)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1 hover:text-cyan-700 text-cyan-600 transition-colors ml-1"
-                            title="Buka / Unduh Berkas"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => handleFileRemove(currentIndex, attachedFile)}
-                            className="p-1 text-rose-500 hover:text-rose-700 transition-colors"
-                            title="Hapus Berkas"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <label className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                            {isUploading ? (
-                              <>
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-700" />
-                                <span>Mengunggah...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Upload className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Unggah Berkas Bukti (PDF/Foto)</span>
-                              </>
-                            )}
-                            <input
-                              type="file"
-                              accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx"
-                              className="hidden"
-                              onChange={(e) => handleFileUpload(currentIndex, e)}
-                              disabled={isUploading}
-                            />
-                          </label>
-                          <span className="text-[11px] text-slate-400 hidden sm:inline">
-                            Maks. 20 MB
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 );
               })}

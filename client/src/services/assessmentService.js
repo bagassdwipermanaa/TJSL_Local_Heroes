@@ -16,17 +16,22 @@ export function createBlankAssessment() {
       penerima: '',
       sdgs: '',
       pilar: 'Sosial',
-      kategori: 'Individu'
+      kategori: 'Individu',
+      masalah: '',
+      kegiatan: '',
+      peran: '',
+      dampak: '',
+      keberlanjutan: '',
+      inovasi: '',
+      mitra: ''
     },
     admin: Array(TOTAL_ADMIN_ITEMS).fill(null),
     scores: {
       porto: Array(7).fill(null),
-      lapangan: Array(7).fill(null),
       final: Array(7).fill(null)
     },
     notes: {
       porto: Array(7).fill(''),
-      lapangan: Array(7).fill(''),
       final: Array(7).fill('')
     },
     bonus: Array(BONUS_ITEMS.length).fill(false),
@@ -164,9 +169,8 @@ export function exportAssessmentsToCSV() {
     'Pilar TJSL',
     'SDGs',
     'Status Administrasi',
-    'Skor Portofolio (40%)',
-    'Skor Lapangan (30%)',
-    'Skor Wawancara (30%)',
+    'Skor Portofolio (50%)',
+    'Skor Wawancara (50%)',
     'Nilai Tambah',
     'Nilai Akhir',
     'Predikat',
@@ -190,7 +194,6 @@ export function exportAssessmentsToCSV() {
       `"${(item.ident?.sdgs || '-').replace(/"/g, '""')}"`,
       computed.adminStatus === 'ok' ? 'Lolos' : (computed.adminStatus === 'fail' ? 'Gugur' : 'Belum Lengkap'),
       formatScore(computed.stageScores.porto),
-      formatScore(computed.stageScores.lapangan),
       formatScore(computed.stageScores.final),
       `+${computed.bonusTotal}`,
       formatScore(computed.finalScore),

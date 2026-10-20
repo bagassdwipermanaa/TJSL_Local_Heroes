@@ -31,7 +31,7 @@ export const ROUTE_METADATA = {
     path: '/penilaian/substansi',
     title: 'Tahap 3: Penilaian Substansi & Skor',
     description:
-      'Evaluasi 7 kriteria substansi bertahap (Portofolio berkas, verifikasi lapangan, dan wawancara dewan juri).'
+      'Evaluasi 7 kriteria substansi (Portofolio berkas dan presentasi wawancara dewan juri).'
   },
   rekom: {
     path: '/penilaian/rekomendasi',

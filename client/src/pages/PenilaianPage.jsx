@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Award, AlertTriangle, ArrowRight, ArrowLeft, PlusCircle, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Award, AlertTriangle, ArrowRight, ArrowLeft, PlusCircle, CheckCircle2, MessageSquare, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import { STAGES, CRITERIA, WEIGHTS, BONUS_ITEMS } from '../utils/constants';
 import { getAdminStatus } from '../utils/scoring';
 
@@ -20,9 +20,68 @@ export default function PenilaianPage({
   onPrev
 }) {
   const [activeStageKey, setActiveStageKey] = useState('porto');
+  const [showFullNarasi, setShowFullNarasi] = useState(false);
   const adminStatus = getAdminStatus(assessment?.admin);
   const category = assessment?.ident?.kategori || 'Individu';
   const weights = WEIGHTS[category] || WEIGHTS.default;
+
+  const ident = assessment?.ident || {};
+  const regData = assessment?.regData || {};
+
+  const masalah = ident.masalah || regData.masalah || '';
+  const kegiatan = ident.kegiatan || regData.kegiatan || '';
+  const peran = ident.peran || regData.peran || '';
+  const dampak = ident.dampak || regData.dampak || '';
+  const keberlanjutan = ident.keberlanjutan || regData.keberlanjutan || '';
+  const inovasi = ident.inovasi || regData.inovasi || '';
+  const mitra = ident.mitra || regData.mitra || '';
+  const pilar = ident.pilar || regData.pilar || '';
+  const sdgs = ident.sdgs || regData.sdgs || '';
+  const penerima = ident.penerima || regData.penerima || ident.penerima_jiwa || '';
+  const mulai = ident.mulai || regData.mulai || '';
+  const frekuensi = ident.frekuensi || regData.frekuensi || '';
+
+  const getCriterionNarrative = (critId) => {
+    switch (critId) {
+      case 0:
+        return [
+          { label: 'Pilar TJSL', text: pilar },
+          { label: 'Target TPB / SDGs', text: typeof sdgs === 'object' && Array.isArray(sdgs) ? sdgs.join(', ') : sdgs },
+          { label: 'Latar Belakang & Masalah', text: masalah },
+          { label: 'Bentuk Kegiatan Nyata', text: kegiatan }
+        ];
+      case 1:
+        return [
+          { label: 'Dampak & Manfaat Nyata bagi Warga', text: dampak },
+          { label: 'Jumlah Penerima Manfaat', text: penerima ? `${penerima} orang / KK` : '' }
+        ];
+      case 2:
+        return [
+          { label: 'Keberlanjutan & Rencana Pengembangan', text: keberlanjutan },
+          { label: 'Waktu Mulai Kegiatan', text: mulai },
+          { label: 'Frekuensi Kegiatan', text: frekuensi }
+        ];
+      case 3:
+        return [
+          { label: 'Peran Langsung di Lapangan', text: peran }
+        ];
+      case 4:
+        return [
+          { label: 'Inovasi atau Keunikan Pendekatan', text: inovasi }
+        ];
+      case 5:
+        return [
+          { label: 'Mitra & Pihak yang Terlibat', text: mitra }
+        ];
+      case 6:
+        return [
+          { label: 'Potensi Replikasi & Keberlanjutan', text: keberlanjutan },
+          { label: 'Keunikan Pendekatan', text: inovasi }
+        ];
+      default:
+        return [];
+    }
+  };
 
   const currentScores = assessment?.scores?.[activeStageKey] || Array(7).fill(null);
   const currentNotes = assessment?.notes?.[activeStageKey] || Array(7).fill('');
@@ -94,12 +153,69 @@ export default function PenilaianPage({
         })}
       </div>
 
+      {/* Panel Bahan Penilaian Juri: Narasi Inisiatif Pengusul (Bagian 3) */}
+      <div className="mb-6 rounded-xl border border-cyan-200/90 bg-cyan-50/40 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold text-cyan-950 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-cyan-700" />
+              Uraian Kegiatan & Narasi Inisiatif Pengusul (Bagian 3 Form Pendaftaran)
+            </h3>
+            <p className="text-xs text-cyan-800 mt-0.5">
+              Bahan utama penilaian juri untuk mengukur 7 kriteria substansi (masalah, bentuk kegiatan, peran, dampak, keberlanjutan, inovasi, mitra).
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowFullNarasi(!showFullNarasi)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-300 bg-white text-xs font-bold text-cyan-900 hover:bg-cyan-50 transition-colors shrink-0 shadow-2xs"
+          >
+            <span>{showFullNarasi ? 'Tutup Narasi Lengkap' : 'Buka Seluruh Narasi (7 Poin)'}</span>
+            {showFullNarasi ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showFullNarasi && (
+          <div className="mt-4 pt-4 border-t border-cyan-200/70 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[1] Latar Belakang & Masalah yang Diatasi:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{masalah || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[2] Bentuk Kegiatan yang Dilakukan:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{kegiatan || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[3] Peran Pengusul Secara Langsung:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{peran || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[4] Dampak dan Manfaat Nyata bagi Masyarakat:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{dampak || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[5] Keberlanjutan & Rencana Pengembangan:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{keberlanjutan || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs">
+              <span className="font-bold text-slate-800 block mb-1">[6] Inovasi atau Keunikan Pendekatan:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{inovasi || '–'}</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-2xs md:col-span-2">
+              <span className="font-bold text-slate-800 block mb-1">[7] Mitra dan Pihak yang Terlibat:</span>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{mitra || '–'}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Criteria List for Selected Stage */}
       <div className="space-y-5">
         {CRITERIA.map((crit, idx) => {
           const weight = weights[idx] || 0;
           const score = currentScores[idx];
           const note = currentNotes[idx] || '';
+          const narrativeSnippets = getCriterionNarrative(crit.id);
 
           return (
             <div
@@ -146,6 +262,28 @@ export default function PenilaianPage({
                   })}
                 </div>
               </div>
+
+              {/* Kutipan Jawaban Pengusul untuk Kriteria Ini */}
+              {narrativeSnippets.length > 0 && (
+                <div className="pl-0 sm:pl-7 my-2.5">
+                  <div className="p-3 rounded-lg bg-slate-50/90 border border-slate-200/80 text-xs">
+                    <div className="flex items-center gap-1.5 font-bold text-cyan-800 uppercase text-[10px] tracking-wider mb-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-cyan-700" />
+                      <span>Uraian / Jawaban Pengusul (Bahan Verifikasi Kriteria):</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {narrativeSnippets.map((item, nIdx) => (
+                        <div key={nIdx} className="leading-relaxed">
+                          <span className="font-semibold text-slate-700">{item.label}: </span>
+                          <span className="text-slate-900 italic">
+                            {item.text && item.text.trim() ? `"${item.text}"` : <span className="text-slate-400 not-italic">(Belum diisi)</span>}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Note per criteria */}
               <div className="pl-0 sm:pl-7 pt-2">

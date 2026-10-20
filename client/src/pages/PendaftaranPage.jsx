@@ -170,6 +170,11 @@ export default function PendaftaranPage({ onNavigateLogin }) {
         status: registration.status === 'terkirim' ? 'terkirim' : 'draft'
       });
       setRegistration(saved);
+      try {
+        localStorage.setItem('active_assessment_reg_id', saved.id);
+      } catch {
+        // silent
+      }
       await loadRegistrationsList();
       showNotification({
         type: 'info',
@@ -239,6 +244,11 @@ export default function PendaftaranPage({ onNavigateLogin }) {
 
       const saved = await saveRegistrationToServer(payload);
       setRegistration(saved);
+      try {
+        localStorage.setItem('active_assessment_reg_id', saved.id);
+      } catch {
+        // silent
+      }
 
       showNotification({
         type: 'success',

@@ -1,9 +1,9 @@
-import { WEIGHTS, STAGES, BONUS_ITEMS } from './constants';
+import { WEIGHTS, STAGES, BONUS_ITEMS, TOTAL_ADMIN_ITEMS } from './constants';
 
 export function getAdminStatus(adminArray) {
   if (!adminArray || !Array.isArray(adminArray)) return "wait";
   if (adminArray.some(val => val === false)) return "fail";
-  if (adminArray.length > 0 && adminArray.every(val => val === true)) return "ok";
+  if (adminArray.length >= TOTAL_ADMIN_ITEMS && adminArray.slice(0, TOTAL_ADMIN_ITEMS).every(val => val === true)) return "ok";
   return "wait";
 }
 
@@ -22,7 +22,7 @@ export function computeAssessment(assessment) {
   if (!assessment) {
     return {
       adminStatus: "wait",
-      stageScores: { porto: null, lapangan: null, final: null },
+      stageScores: { porto: null, final: null },
       bonusTotal: 0,
       finalScore: null,
       predicate: "Belum ada nilai"

@@ -3,7 +3,14 @@ import { Save, RotateCcw, CheckCircle2, XCircle, Clock, Award, ShieldCheck, Chev
 import { computeAssessment, formatScore } from '../../utils/scoring';
 import { STAGES } from '../../utils/constants';
 
-export default function ScoreSidebar({ assessment, onSave, onReset, onGoToStep }) {
+export default function ScoreSidebar({
+  assessment,
+  registrations = [],
+  onSelectRegistration,
+  onSave,
+  onReset,
+  onGoToStep
+}) {
   const computed = computeAssessment(assessment);
 
   const participantName = assessment?.ident?.nama || assessment?.ident?.komunitas || 'Peserta belum diisi';
@@ -41,6 +48,29 @@ export default function ScoreSidebar({ assessment, onSave, onReset, onGoToStep }
           <span className="font-semibold uppercase tracking-wider text-[10px] text-cyan-700">Ringkasan Skor Juri</span>
           <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium">{category}</span>
         </div>
+
+        {/* Dropdown Pemilih Peserta */}
+        {registrations.length > 0 && onSelectRegistration && (
+          <div className="my-2">
+            <select
+              aria-label="Pilih Peserta Penilaian"
+              value={assessment?.registrationId || ''}
+              onChange={(e) => {
+                const found = registrations.find((r) => r.id === e.target.value);
+                if (found) onSelectRegistration(found);
+              }}
+              className="w-full text-xs font-semibold py-1.5 px-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:bg-white transition-colors"
+            >
+              <option value="">-- Ganti / Pilih Peserta --</option>
+              {registrations.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.data?.nama || r.id} — {r.data?.program || 'Inisiatif'}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <h3 className="font-extrabold text-slate-900 text-base leading-snug line-clamp-1" title={participantName}>
           {participantName}
         </h3>

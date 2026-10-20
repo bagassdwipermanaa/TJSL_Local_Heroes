@@ -52,42 +52,44 @@ export const ADMIN_CHECKLIST = [
     ]
   },
   {
-    group: "Bukti Implementasi",
+    group: "Pernyataan Integritas & Keaslian Dokumen",
+    subtitle: "Pernyataan kepatuhan yang telah dicentang pengusul pada Formulir Pendaftaran (Bagian 5)",
+    isDeclarationGroup: true,
     items: [
       {
         id: "adm-4",
-        title: "Kegiatan berjalan minimal 6 bulan secara berkesinambungan dan masih aktif",
-        evidence: "Logbook, jadwal rutin, atau laporan berkala"
+        declIndex: 0,
+        number: 1,
+        title: "Saya adalah pegawai/TAD aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
+        evidence: "Pernyataan Integritas Butir [1] Formulir Pendaftaran"
       },
       {
         id: "adm-5",
-        title: "Dokumentasi kegiatan dengan keterangan waktu dan lokasi dari beberapa periode",
-        evidence: "Foto / video dokumentasi representatif"
+        declIndex: 1,
+        number: 2,
+        title: "Kegiatan ini saya lakukan secara sukarela dan bukan bagian dari tugas jabatan atau proyek TJSL yang didanai penuh perusahaan.",
+        evidence: "Pernyataan Integritas Butir [2] Formulir Pendaftaran"
       },
       {
         id: "adm-6",
-        title: "Lokasi kegiatan dapat dikunjungi dan bersedia diverifikasi lapangan",
-        evidence: "Surat kesediaan / pernyataan keterbukaan lokasi"
-      }
-    ]
-  },
-  {
-    group: "Kesesuaian Program",
-    items: [
+        declIndex: 2,
+        number: 3,
+        title: "Kegiatan ini tidak mengandung unsur politik praktis, SARA, maupun kepentingan komersial pribadi.",
+        evidence: "Pernyataan Integritas Butir [3] Formulir Pendaftaran"
+      },
       {
         id: "adm-7",
-        title: "Sukarela, bukan tugas kedinasan atau proyek TJSL korporat yang didanai penuh",
-        evidence: "Surat pernyataan inisiatif mandiri"
+        declIndex: 3,
+        number: 4,
+        title: "Kegiatan masih aktif, lokasinya dapat dikunjungi, dan saya bersedia diverifikasi lapangan oleh tim penilai.",
+        evidence: "Pernyataan Integritas Butir [4] Formulir Pendaftaran"
       },
       {
         id: "adm-8",
-        title: "Bebas dari politik praktis, SARA, dan kepentingan komersial pribadi",
-        evidence: "Surat pernyataan netralitas & kepatuhan etika"
-      },
-      {
-        id: "adm-9",
-        title: "Pernyataan keaslian seluruh berkas dan dokumen yang dilampirkan",
-        evidence: "Surat pernyataan bermeterai cukup"
+        declIndex: 4,
+        number: 5,
+        title: "Seluruh dokumen dan informasi yang saya sampaikan benar. Apabila ditemukan ketidaksesuaian saat verifikasi, saya bersedia didiskualifikasi.",
+        evidence: "Pernyataan Integritas Butir [5] Formulir Pendaftaran"
       }
     ]
   }
@@ -140,9 +142,8 @@ export const WEIGHTS = {
 };
 
 export const STAGES = [
-  { key: "porto", label: "Portofolio Berkas", weight: 40 },
-  { key: "lapangan", label: "Verifikasi Lapangan", weight: 30 },
-  { key: "final", label: "Presentasi & Wawancara", weight: 30 }
+  { key: "porto", label: "Portofolio Berkas", weight: 50 },
+  { key: "final", label: "Presentasi & Wawancara", weight: 50 }
 ];
 
 export const BONUS_ITEMS = [

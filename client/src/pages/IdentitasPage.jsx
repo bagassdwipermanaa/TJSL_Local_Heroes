@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   User, Users, MapPin, Calendar, Award, Globe, ArrowRight,
-  Building, FileSpreadsheet, CheckCircle2, Check, RefreshCw
+  Building, FileSpreadsheet, CheckCircle2, Check, RefreshCw, MessageSquare
 } from 'lucide-react';
 import { SDGS_OPTIONS, PILAR_OPTIONS } from '../utils/constants';
 import { API_BASE_URL } from '../config';
@@ -376,6 +376,128 @@ export default function IdentitasPage({
                     ))}
                   </select>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Uraian Kegiatan & Narasi Inisiatif (Bagian 3) */}
+        <div className="pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <MessageSquare className="w-4 h-4 text-slate-400" />
+                Uraian Kegiatan & Narasi Inisiatif (Bagian 3 Form Pendaftaran)
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Bahan utama penilaian juri untuk 7 kriteria substansi (Latar belakang, dampak, keberlanjutan, inovasi, peran, mitra).
+              </p>
+            </div>
+            {matchedReg && (
+              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-flex items-center gap-1 shrink-0">
+                <Check className="w-3 h-3" /> Sinkron Pendaftar
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {/* Latar Belakang & Masalah */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Latar Belakang dan Masalah yang Diatasi <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Kondisi riil masyarakat sebelum kegiatan dan persoalan mendesak..."
+                value={ident.masalah || ''}
+                onChange={(e) => handleChange('masalah', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+              />
+            </div>
+
+            {/* Bentuk Kegiatan */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Bentuk Kegiatan yang Dilakukan <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Rangkaian aksi, metode, atau program kerja nyata yang diimplementasikan..."
+                value={ident.kegiatan || ''}
+                onChange={(e) => handleChange('kegiatan', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+              />
+            </div>
+
+            {/* Peran Langsung */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Peran Pengusul Secara Langsung <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Peran aktif pengusul di lapangan (penggagas, penggerak, instruktur, waktu & energi pribadi)..."
+                value={ident.peran || ''}
+                onChange={(e) => handleChange('peran', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+              />
+            </div>
+
+            {/* Dampak & Manfaat */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Dampak dan Manfaat Nyata bagi Masyarakat <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Perubahan terukur, peningkatan ekonomi, perbaikan sosial/lingkungan..."
+                value={ident.dampak || ''}
+                onChange={(e) => handleChange('dampak', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+              />
+            </div>
+
+            {/* Keberlanjutan */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Keberlanjutan dan Rencana Pengembangan ke Depan <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Rencana jangka panjang, kemandirian kegiatan, regenerasi penggerak..."
+                value={ident.keberlanjutan || ''}
+                onChange={(e) => handleChange('keberlanjutan', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Inovasi */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Inovasi atau Keunikan Pendekatan (Opsional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Aspek pembeda atau metode kreatif..."
+                  value={ident.inovasi || ''}
+                  onChange={(e) => handleChange('inovasi', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+                />
+              </div>
+
+              {/* Mitra */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Mitra dan Pihak yang Terlibat (Opsional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Daftar mitra kerja sama pendukung..."
+                  value={ident.mitra || ''}
+                  onChange={(e) => handleChange('mitra', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all leading-relaxed"
+                />
               </div>
             </div>
           </div>
