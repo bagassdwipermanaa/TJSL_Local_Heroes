@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://tjsl.bagasdp.online/sitemap.xml
+Sitemap: https://tjslheroes.plnes.co.id/sitemap.xml

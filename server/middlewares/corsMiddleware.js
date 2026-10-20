@@ -7,6 +7,7 @@ export const corsMiddleware = cors({
     if (!origin) return callback(null, true);
     if (
       origin === config.clientUrl ||
+      origin.includes('plnes.co.id') ||
       origin.includes('bagasdp.online') ||
       origin.includes('localhost') ||
       origin.includes('127.0.0.1')

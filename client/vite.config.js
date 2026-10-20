@@ -9,31 +9,31 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 3002,
+    port: 3012,
     host: '0.0.0.0',
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8012',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8012',
         changeOrigin: true,
       }
     }
   },
   preview: {
-    port: 3002,
+    port: 3012,
     host: '0.0.0.0',
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8012',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8012',
         changeOrigin: true,
       }
     }

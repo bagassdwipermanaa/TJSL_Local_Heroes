@@ -6,17 +6,21 @@ let isConnected = false;
 
 export async function initDatabase() {
   try {
-    // 1. Try connecting to server to ensure database exists
-    const rootConn = await mysql.createConnection({
-      host: config.db.host,
-      user: config.db.user,
-      password: config.db.password,
-      port: config.db.port,
-      connectTimeout: 5000
-    });
+    // 1. Try connecting to server to ensure database exists (optional, if user has permission)
+    try {
+      const rootConn = await mysql.createConnection({
+        host: config.db.host,
+        user: config.db.user,
+        password: config.db.password,
+        port: config.db.port,
+        connectTimeout: 5000
+      });
 
-    await rootConn.query(`CREATE DATABASE IF NOT EXISTS \`${config.db.database}\`;`);
-    await rootConn.end();
+      await rootConn.query(`CREATE DATABASE IF NOT EXISTS \`${config.db.database}\`;`);
+      await rootConn.end();
+    } catch (_dbCreateErr) {
+      // Ignored if user lacks global/CREATE DATABASE privileges and connects directly to existing db
+    }
 
     // 2. Create Connection Pool pointing to target database
     pool = mysql.createPool({
