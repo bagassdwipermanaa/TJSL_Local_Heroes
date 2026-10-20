@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2, Save, Send
 } from 'lucide-react';
@@ -17,13 +17,39 @@ import {
   checkRegistrationCompleteness
 } from '../services/registrationService';
 import { useNotification } from '../hooks/useNotification';
+import { useAuth } from '../hooks/useAuth';
 
-export default function PendaftaranPage() {
+export default function PendaftaranPage({ onNavigateLogin }) {
+  const { user } = useAuth();
   const { showNotification } = useNotification();
   const [registration, setRegistration] = useState(() => {
     return getLocalDraft() || createBlankRegistration();
   });
   const [isSaving, setIsSaving] = useState(false);
+
+  // Jika pengguna baru saja login/register, sinkronkan nama, email, dan NIP akun ke field yang masih kosong
+  useEffect(() => {
+    if (!user) return;
+    setRegistration((prev) => {
+      const d = prev.data || {};
+      const needsUpdate = (!d.nama && user.nama) || (!d.email && user.email) || (!d.nip && user.nip);
+      if (!needsUpdate) return prev;
+
+      const next = {
+        ...prev,
+        data: {
+          ...d,
+          nama: d.nama || user.nama || '',
+          email: d.email || user.email || '',
+          nip: d.nip || user.nip || ''
+        },
+        userId: user.id || prev.userId,
+        updatedAt: new Date().toISOString()
+      };
+      saveLocalDraft(next);
+      return next;
+    });
+  }, [user]);
 
   const completeness = checkRegistrationCompleteness(registration);
 
@@ -162,6 +188,18 @@ export default function PendaftaranPage() {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      showNotification({
+        type: 'warning',
+        title: 'Harap Masuk Akun',
+        message: 'Silakan masuk atau daftar akun terlebih dahulu untuk mengirimkan berkas pendaftaran.'
+      });
+      if (onNavigateLogin) {
+        onNavigateLogin();
+      }
+      return;
+    }
+
     if (!completeness.isReady) {
       showNotification({
         type: 'warning',

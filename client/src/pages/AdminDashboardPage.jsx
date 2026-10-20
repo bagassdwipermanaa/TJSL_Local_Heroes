@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Users, Award, FileText, Plus, Trash2, CheckCircle2,
   Clock, ShieldCheck, Search, ExternalLink, X, RefreshCw,
-  Menu, BarChart3, PieChart as PieIcon, ArrowUpRight
+  Menu, BarChart3, PieChart as PieIcon, ArrowUpRight,
+  User, Mail, Hash, Shield, Lock, Eye, EyeOff, UserPlus, Check
 } from 'lucide-react';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import { DonutChart, BarChart } from '../components/admin/AdminCharts';
@@ -19,7 +20,7 @@ export default function AdminDashboardPage({
   onDeleteAssessment,
   onNewAssessment
 }) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { showNotification, auditLogs = [] } = useNotification();
 
   // Sidebar responsive states
@@ -52,15 +53,16 @@ export default function AdminDashboardPage({
     role: 'penilai',
     password: ''
   });
+  const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('tjsl_auth_token') || '';
+    const activeToken = token || localStorage.getItem('pln_tjsl_auth_token') || '';
     return {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${activeToken}`
     };
-  }, []);
+  }, [token]);
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -82,17 +84,20 @@ export default function AdminDashboardPage({
       }
 
       // 3. Users list (admin only)
-      const usersRes = await fetch(`${API_BASE_URL}/auth/users`, { headers });
-      if (usersRes.ok) {
-        const usersJson = await usersRes.json();
-        setUsersList(usersJson.data || []);
+      const activeToken = token || localStorage.getItem('pln_tjsl_auth_token');
+      if (activeToken && user?.role === 'admin') {
+        const usersRes = await fetch(`${API_BASE_URL}/auth/users`, { headers });
+        if (usersRes.ok) {
+          const usersJson = await usersRes.json();
+          setUsersList(usersJson.data || []);
+        }
       }
     } catch (err) {
       console.error('[AdminDashboard] Fetch error:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [getAuthHeader]);
+  }, [getAuthHeader, token, user]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -740,7 +745,15 @@ export default function AdminDashboardPage({
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900">Review Berkas Pendaftaran</h3>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-800 flex items-center justify-center">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Review Berkas Pendaftaran</h3>
+                  <p className="text-[11px] text-slate-500">Verifikasi kelayakan berkas inisiatif peserta</p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setSelectedReg(null)}
@@ -750,23 +763,28 @@ export default function AdminDashboardPage({
               </button>
             </div>
 
-            <div>
-              <p className="text-xs text-slate-500">Pengusul & Program:</p>
-              <p className="text-sm font-bold text-slate-900">{selectedReg.data?.nama || '-'}</p>
-              <p className="text-xs text-slate-700">{selectedReg.data?.program || '-'}</p>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+              <p className="text-[11px] text-slate-500 font-medium">Pengusul & Inisiatif:</p>
+              <p className="text-xs font-bold text-slate-900">{selectedReg.data?.nama || '-'}</p>
+              <p className="text-xs text-slate-600">{selectedReg.data?.program || '-'}</p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Status Verifikasi Administrasi</label>
-              <select
-                value={regReviewStatus}
-                onChange={(e) => setRegReviewStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 text-slate-800"
-              >
-                {REVIEW_STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
+                <select
+                  value={regReviewStatus}
+                  onChange={(e) => setRegReviewStatus(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-800"
+                >
+                  {REVIEW_STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>
@@ -776,7 +794,7 @@ export default function AdminDashboardPage({
                 value={regReviewNotes}
                 onChange={(e) => setRegReviewNotes(e.target.value)}
                 placeholder="Tuliskan catatan verifikasi kelengkapan berkas..."
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white text-slate-800"
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-800"
               />
             </div>
 
@@ -784,17 +802,19 @@ export default function AdminDashboardPage({
               <button
                 type="button"
                 onClick={() => setSelectedReg(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
               >
-                Batal
+                <X className="w-3.5 h-3.5" />
+                <span>Batal</span>
               </button>
               <button
                 type="button"
                 onClick={handleSaveReview}
                 disabled={isSavingReview}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-xs disabled:opacity-50"
               >
-                {isSavingReview ? 'Menyimpan...' : 'Simpan Verifikasi'}
+                <Check className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isSavingReview ? 'Menyimpan...' : 'Simpan Verifikasi'}</span>
               </button>
             </div>
           </div>
@@ -806,7 +826,15 @@ export default function AdminDashboardPage({
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900">Buat Akun Juri / Panitia</h3>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-800 flex items-center justify-center">
+                  <UserPlus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Buat Akun Juri / Panitia</h3>
+                  <p className="text-[11px] text-slate-500">Registrasi akun resmi internal oleh administrator</p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsAddUserOpen(false)}
@@ -816,80 +844,115 @@ export default function AdminDashboardPage({
               </button>
             </div>
 
-            <form onSubmit={handleCreateUser} className="space-y-3">
+            <form onSubmit={handleCreateUser} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap *</label>
-                <input
-                  type="text"
-                  required
-                  value={newUser.nama}
-                  onChange={(e) => setNewUser({ ...newUser, nama: e.target.value })}
-                  placeholder="Contoh: Ir. Budi Santoso"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={newUser.nama}
+                    onChange={(e) => setNewUser({ ...newUser, nama: e.target.value })}
+                    placeholder="Contoh: Ir. Budi Santoso"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Alamat Email *</label>
-                <input
-                  type="email"
-                  required
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="juri@plnes.co.id"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    placeholder="juri@plnes.co.id"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">NIP (Opsional)</label>
-                <input
-                  type="text"
-                  value={newUser.nip}
-                  onChange={(e) => setNewUser({ ...newUser, nip: e.target.value })}
-                  placeholder="1987..."
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Hash className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type="text"
+                    value={newUser.nip}
+                    onChange={(e) => setNewUser({ ...newUser, nip: e.target.value })}
+                    placeholder="1987..."
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Peran Akun (Role) *</label>
-                <select
-                  value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50"
-                >
-                  <option value="penilai">Dewan Juri / Penilai</option>
-                  <option value="admin">Administrator Sistem</option>
-                </select>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Shield className="w-3.5 h-3.5" />
+                  </div>
+                  <select
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
+                  >
+                    <option value="penilai">Dewan Juri / Penilai</option>
+                    <option value="admin">Administrator Sistem</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Awal *</label>
-                <input
-                  type="password"
-                  required
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  placeholder="Min. 8 karakter (kombinasi huruf, angka, simbol)"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type={showNewUserPassword ? 'text' : 'password'}
+                    required
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    placeholder="Min. 8 karakter (kombinasi huruf, angka, simbol)"
+                    className="w-full pl-9 pr-10 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewUserPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 transition-colors"
+                    title={showNewUserPassword ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'}
+                  >
+                    {showNewUserPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3">
                 <button
                   type="button"
                   onClick={() => setIsAddUserOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                 >
-                  Batal
+                  <X className="w-3.5 h-3.5" />
+                  <span>Batal</span>
                 </button>
                 <button
                   type="submit"
                   disabled={isCreatingUser}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-xs disabled:opacity-50"
                 >
-                  {isCreatingUser ? 'Memproses...' : 'Simpan Akun'}
+                  <Check className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{isCreatingUser ? 'Memproses...' : 'Simpan Akun'}</span>
                 </button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -107,17 +107,48 @@ export function DonutChart({
 
   const total = values.reduce((a, b) => a + b, 0);
 
+  const plugins = useMemo(() => [
+    {
+      id: 'centerTextPlugin',
+      afterDraw(chart) {
+        const { ctx } = chart;
+        if (!ctx) return;
+
+        let x;
+        let y;
+        const meta = chart.getDatasetMeta(0);
+        if (meta && meta.data && meta.data.length > 0 && meta.data[0].x !== undefined) {
+          x = meta.data[0].x;
+          y = meta.data[0].y;
+        } else if (chart.chartArea) {
+          x = (chart.chartArea.left + chart.chartArea.right) / 2;
+          y = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+        } else {
+          return;
+        }
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Nilai Angka Total di Tengah Donut
+        ctx.font = '800 24px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(String(total), x, y - 7);
+
+        // Label Judul di Bawah Nilai Angka
+        ctx.font = '700 10px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(title.toUpperCase(), x, y + 12);
+
+        ctx.restore();
+      }
+    }
+  ], [total, title]);
+
   return (
     <div className="relative w-full h-56 flex items-center justify-center">
-      <Doughnut data={chartData} options={options} />
-      <div className="absolute left-[26%] sm:left-[27%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-        <span className="text-xl sm:text-2xl font-black text-slate-900 leading-none">
-          {total}
-        </span>
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-          {title}
-        </span>
-      </div>
+      <Doughnut data={chartData} options={options} plugins={plugins} />
     </div>
   );
 }

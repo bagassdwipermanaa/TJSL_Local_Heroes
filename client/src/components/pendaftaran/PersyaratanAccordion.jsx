@@ -70,7 +70,7 @@ export default function PersyaratanAccordion() {
               <ul className="text-xs text-slate-600 space-y-1.5 pl-4 list-disc">
                 <li>Kegiatan murni sukarela, bukan tugas kedinasan atau proyek TJSL yang dibiayai penuh perusahaan.</li>
                 <li>Bebas dari kepentingan politik praktis, SARA, dan kepentingan komersial pribadi.</li>
-                <li>Surat pernyataan keaslian bermeterai wajib disertakan. Ketidaksesuaian berakibat diskualifikasi.</li>
+                <li>Pernyataan integritas dan kepatuhan wajib dicentang pada formulir. Ketidaksesuaian berakibat diskualifikasi.</li>
               </ul>
             </div>
           </div>

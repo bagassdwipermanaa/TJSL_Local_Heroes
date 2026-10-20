@@ -51,12 +51,6 @@ export const REGISTRATION_DOCS = [
     label: "Dokumentasi kegiatan",
     hint: "Foto/video dengan keterangan waktu dan lokasi dari beberapa periode berbeda, dari awal hingga saat ini.",
     required: true
-  },
-  {
-    key: "pernyataan",
-    label: "Surat pernyataan keaslian bermeterai",
-    hint: "Pindaian surat yang sudah ditandatangani di atas meterai.",
-    required: true
   }
 ];
 

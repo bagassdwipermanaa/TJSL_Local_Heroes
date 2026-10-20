@@ -14,7 +14,7 @@ import { computeAssessment, formatScore } from '../utils/scoring';
 import { exportAssessmentsToCSV } from '../services/assessmentService';
 import { useNotification } from '../hooks/useNotification';
 
-export default function RekapPage({ assessments, onOpenAssessment, onDeleteAssessment, onNewAssessment }) {
+export default function RekapPage({ assessments, onOpenAssessment, onDeleteAssessment, _onNewAssessment }) {
   const { showNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState('');
   const [adminFilter, setAdminFilter] = useState('all');
@@ -130,14 +130,6 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
             <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Ekspor CSV</span>
           </button>
-
-          <button
-            type="button"
-            onClick={onNewAssessment}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-cyan-700 text-white hover:bg-cyan-800 transition-colors shadow-xs"
-          >
-            <span>+ Peserta Baru</span>
-          </button>
         </div>
       </div>
 
@@ -226,7 +218,8 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
           <thead className="bg-slate-50 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
             <tr>
               <th className="py-3 px-3 sm:px-4 text-center w-12">#</th>
-              <th className="py-3 px-3 sm:px-4">Peserta & Program</th>
+              <th className="py-3 px-3 sm:px-4">Peserta & Program (Yang Dinilai)</th>
+              <th className="py-3 px-3 sm:px-4">Dewan Juri (Penilai)</th>
               <th className="py-3 px-3 sm:px-4">Kategori & Pilar</th>
               <th className="py-3 px-3 sm:px-4 text-center">Administrasi</th>
               <th className="py-3 px-3 sm:px-4 text-right">Nilai Akhir</th>
@@ -237,11 +230,11 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
           <tbody className="divide-y divide-slate-100 bg-white">
             {filteredList.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-400">
+                <td colSpan={8} className="py-12 text-center text-slate-400">
                   <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                  <p className="font-semibold text-xs text-slate-600">Tidak ada data peserta ditemukan</p>
+                  <p className="font-semibold text-xs text-slate-600">Belum ada evaluasi nilai peserta tersimpan</p>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Isi formulir penilaian lalu klik &quot;Simpan Penilaian&quot; untuk mendaftarkan peserta.
+                    Data peringkat akan tampil otomatis setelah dewan juri menyimpan hasil penilaian inisiatif peserta.
                   </p>
                 </td>
               </tr>
@@ -251,6 +244,8 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
                 const program = data.ident?.program || '–';
                 const category = data.ident?.kategori || 'Individu';
                 const pilar = data.ident?.pilar || '–';
+                const juriName = data.juri || 'Belum Ditentukan';
+                const juriEmail = data.juriEmail || '';
 
                 return (
                   <tr key={data.id} className="hover:bg-slate-50/70 transition-colors">
@@ -273,15 +268,30 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
                       )}
                     </td>
 
-                    {/* Participant Info */}
+                    {/* Participant Info (Yang Dinilai) */}
                     <td className="py-3 px-3 sm:px-4 max-w-xs">
                       <div className="font-bold text-slate-900 line-clamp-1">{name}</div>
                       <div className="text-xs text-slate-500 line-clamp-1 mt-0.5">{program}</div>
                       {data.ident?.unit && (
                         <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
-                          {data.ident.unit}
+                          {data.ident.unit} {data.ident?.nip ? `• NIP: ${data.ident.nip}` : ''}
                         </span>
                       )}
+                    </td>
+
+                    {/* Judge Info (Penilai) */}
+                    <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-slate-900 text-cyan-400 text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {juriName.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex flex-col leading-tight">
+                          <span className="text-xs font-bold text-slate-900">{juriName}</span>
+                          <span className="text-[10px] text-slate-400 truncate max-w-[130px]">
+                            {juriEmail || (data.unsur ? `Unsur: ${data.unsur}` : 'Dewan Juri')}
+                          </span>
+                        </div>
+                      </div>
                     </td>
 
                     {/* Category & Pilar */}

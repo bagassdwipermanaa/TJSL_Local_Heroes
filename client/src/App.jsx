@@ -17,6 +17,7 @@ import RegisterPage from './pages/RegisterPage';
 import { useNotification } from './hooks/useNotification';
 import { useRouter } from './hooks/useRouter';
 import { useAuth } from './hooks/useAuth';
+import { getStoredUser } from './services/authService';
 import {
   createBlankAssessment,
   getAllAssessments,
@@ -24,6 +25,9 @@ import {
   saveAssessmentRecord,
   deleteAssessmentRecord
 } from './services/assessmentService';
+import { API_BASE_URL } from './config';
+import { SDGS_OPTIONS, TOTAL_ADMIN_ITEMS } from './utils/constants';
+import { REGISTRATION_SDGS } from './constants/registrationConstants';
 
 export default function App() {
   const { user } = useAuth();
@@ -32,11 +36,13 @@ export default function App() {
   const { appMode, activeStep } = route;
   const [currentAssessment, setCurrentAssessment] = useState(() => createBlankAssessment());
   const [assessments, setAssessments] = useState(() => getAllAssessments());
+  const [registrations, setRegistrations] = useState([]);
   const [isAuditLogOpen, setIsAuditLogOpen] = useState(false);
 
-  const handleSelectAppMode = useCallback((mode) => {
+  const handleSelectAppMode = useCallback((mode, targetUser) => {
+    const activeUser = targetUser || user || getStoredUser();
     if (mode === 'dashboard') {
-      if (!user || user.role !== 'admin') {
+      if (!activeUser || activeUser.role !== 'admin') {
         showNotification({
           type: 'error',
           title: 'Akses Ditolak',
@@ -45,7 +51,7 @@ export default function App() {
         return;
       }
     } else if (mode === 'penilaian') {
-      if (!user) {
+      if (!activeUser) {
         navigate('login');
         showNotification({
           type: 'warning',
@@ -54,7 +60,7 @@ export default function App() {
         });
         return;
       }
-      if (user.role === 'pendaftar') {
+      if (activeUser.role === 'pendaftar') {
         showNotification({
           type: 'error',
           title: 'Akses Ditolak',
@@ -63,7 +69,7 @@ export default function App() {
         return;
       }
     } else if (mode === 'pendaftaran') {
-      if (user && user.role === 'penilai') {
+      if (activeUser && activeUser.role === 'penilai') {
         showNotification({
           type: 'info',
           title: 'Mode Juri Aktif',
@@ -75,27 +81,35 @@ export default function App() {
     navigate(mode, mode === 'penilaian' ? 'identitas' : undefined);
   }, [navigate, user, showNotification]);
 
-  // Strict Role Route Guards (Redirects if URL does not match role)
+  // Strict Role Route Guards (Redirects if URL does not match role or unauthenticated)
   useEffect(() => {
     if (appMode === 'login' || appMode === 'register') return;
 
-    if (user?.role === 'admin') {
+    const activeUser = user || getStoredUser();
+
+    if (!activeUser) {
+      // Guest / belum login: hanya boleh melihat formulir pendaftaran / beranda publik
+      if (appMode === 'penilaian' || appMode === 'dashboard') {
+        navigate('pendaftaran', undefined, true);
+      }
+      return;
+    }
+
+    if (activeUser.role === 'admin') {
       // If admin lands on /pendaftaran default, redirect to /dashboard
       if (appMode === 'pendaftaran') {
         navigate('dashboard', undefined, true);
       }
-    } else if (user?.role === 'pendaftar') {
+    } else if (activeUser.role === 'pendaftar') {
       if (appMode === 'penilaian' || appMode === 'dashboard') {
         navigate('pendaftaran', undefined, true);
       }
-    } else if (user?.role === 'penilai') {
+    } else if (activeUser.role === 'penilai') {
       if (appMode === 'pendaftaran' || appMode === 'dashboard') {
         navigate('penilaian', 'identitas', true);
       }
-    } else if (!user && (appMode === 'penilaian' || appMode === 'dashboard')) {
-      navigate('pendaftaran', undefined, true);
     }
-  }, [user, appMode, navigate]);
+  }, [user, appMode, navigate, showNotification]);
 
   const handleSelectStep = useCallback((step) => {
     navigate('penilaian', step);
@@ -117,6 +131,17 @@ export default function App() {
       const data = await fetchAllAssessments();
       if (isMounted && data && Array.isArray(data)) {
         setAssessments(data);
+      }
+      try {
+        const regRes = await fetch(`${API_BASE_URL}/registrations`);
+        if (regRes.ok) {
+          const regJson = await regRes.json();
+          if (isMounted && regJson.data && Array.isArray(regJson.data)) {
+            setRegistrations(regJson.data);
+          }
+        }
+      } catch {
+        // silent
       }
     };
 
@@ -255,7 +280,14 @@ export default function App() {
       return;
     }
 
-    const result = await saveAssessmentRecord(currentAssessment);
+    const dataToSave = {
+      ...currentAssessment,
+      juri: currentAssessment.juri || user?.nama || 'Dewan Juri',
+      juriEmail: user?.email || '',
+      juriRole: user?.role || ''
+    };
+
+    const result = await saveAssessmentRecord(dataToSave);
     if (result.success) {
       setCurrentAssessment(result.item);
       await refreshList();
@@ -295,6 +327,91 @@ export default function App() {
       });
     }
   };
+
+  // Link participant registration to current assessment
+  const handleSelectRegistrationForAssessment = useCallback((reg) => {
+    if (!reg) {
+      setCurrentAssessment(createBlankAssessment());
+      return;
+    }
+    const d = reg.data || {};
+
+    // Check if an assessment already exists for this registration
+    const existing = assessments.find(a => 
+      (a.registrationId && a.registrationId === reg.id) ||
+      (a.ident?.nama && d.nama && a.ident.nama.toLowerCase().trim() === d.nama.toLowerCase().trim())
+    );
+
+    if (existing) {
+      setCurrentAssessment({
+        ...existing,
+        registrationId: reg.id
+      });
+      showNotification({
+        type: 'info',
+        title: 'Penilaian Dimuat',
+        message: `Memuat lembar penilaian tersimpan untuk "${d.nama || 'Peserta'}".`
+      });
+      return;
+    }
+
+    const loc = [d.desa, d.kecamatan, d.kabkota, d.provinsi].filter(Boolean).join(', ') || d.lokasi || '';
+
+    let sdgText = '';
+    if (Array.isArray(d.sdgs) && d.sdgs.length > 0) {
+      const idx = d.sdgs[0];
+      sdgText = SDGS_OPTIONS.find(s => s.startsWith(`${idx}.`)) || (REGISTRATION_SDGS[idx - 1] ? `${idx}. ${REGISTRATION_SDGS[idx - 1]}` : '');
+    } else if (typeof d.sdgs === 'string') {
+      sdgText = d.sdgs;
+    }
+
+    // Auto map uploaded registration files to adminFiles & checklist
+    const regFiles = reg.files || {};
+    const adminFiles = {};
+    const admin = Array(TOTAL_ADMIN_ITEMS).fill(null);
+
+    if (regFiles.rekomendasi && regFiles.rekomendasi.length > 0) {
+      adminFiles[2] = regFiles.rekomendasi[0];
+      admin[2] = true;
+    }
+    if (regFiles.logbook && regFiles.logbook.length > 0) {
+      adminFiles[3] = regFiles.logbook[0];
+      admin[3] = true;
+    }
+    if (regFiles.dokumentasi && regFiles.dokumentasi.length > 0) {
+      adminFiles[4] = regFiles.dokumentasi[0];
+      admin[4] = true;
+    }
+
+    const newAssessment = {
+      ...createBlankAssessment(),
+      registrationId: reg.id,
+      ident: {
+        nama: d.nama || '',
+        nip: d.nip || '',
+        unit: d.unit || '',
+        komunitas: d.komunitas || d.nama_komunitas || '',
+        program: d.program || '',
+        lokasi: loc,
+        mulai: d.mulai || '',
+        penerima: d.penerima_jiwa || d.penerima || '',
+        sdgs: sdgText,
+        pilar: d.pilar || 'Sosial',
+        kategori: d.statuspeg === 'TAD' ? 'TAD' : 'Individu'
+      },
+      admin,
+      adminFiles,
+      juri: user?.nama || '',
+      updatedAt: new Date().toISOString()
+    };
+
+    setCurrentAssessment(newAssessment);
+    showNotification({
+      type: 'success',
+      title: 'Peserta Terpilih',
+      message: `Data peserta "${d.nama || 'Inisiatif'}" berhasil dimuat ke lembar penilaian.`
+    });
+  }, [assessments, user, showNotification]);
 
   // Open existing assessment
   const handleOpenAssessment = (id) => {
@@ -339,13 +456,29 @@ export default function App() {
           <LoginPage
             onNavigateRegister={() => handleSelectAppMode('register')}
             onNavigateHome={() => handleSelectAppMode('pendaftaran')}
-            onLoginSuccess={(u) => handleSelectAppMode(u.role === 'penilai' ? 'penilaian' : 'pendaftaran')}
+            onLoginSuccess={(u) => {
+              if (u?.role === 'admin') {
+                navigate('dashboard');
+              } else if (u?.role === 'penilai') {
+                navigate('penilaian', 'identitas');
+              } else {
+                navigate('pendaftaran');
+              }
+            }}
           />
         ) : (
           <RegisterPage
             onNavigateLogin={() => handleSelectAppMode('login')}
             onNavigateHome={() => handleSelectAppMode('pendaftaran')}
-            onRegisterSuccess={(u) => handleSelectAppMode(u.role === 'penilai' ? 'penilaian' : 'pendaftaran')}
+            onRegisterSuccess={(u) => {
+              if (u?.role === 'admin') {
+                navigate('dashboard');
+              } else if (u?.role === 'penilai') {
+                navigate('penilaian', 'identitas');
+              } else {
+                navigate('pendaftaran');
+              }
+            }}
           />
         )}
         <ToastContainer />
@@ -396,7 +529,7 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 no-print">
         {appMode === 'pendaftaran' ? (
-          <PendaftaranPage />
+          <PendaftaranPage onNavigateLogin={() => handleSelectAppMode('login')} />
         ) : activeStep === 'rekap' ? (
           // Full-width leaderboard page
           <RekapPage
@@ -414,6 +547,8 @@ export default function App() {
                   assessment={currentAssessment}
                   onChangeIdent={handleIdentChange}
                   onNext={() => handleSelectStep('admin')}
+                  registrations={registrations}
+                  onSelectRegistration={handleSelectRegistrationForAssessment}
                 />
               )}
 
