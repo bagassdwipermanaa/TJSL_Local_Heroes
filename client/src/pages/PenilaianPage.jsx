@@ -29,7 +29,7 @@ export default function PenilaianPage({
   const bonusArray = assessment?.bonus || Array(BONUS_ITEMS.length).fill(false);
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+    <section className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-xs">
       {/* Header */}
       <div className="border-b border-slate-100 pb-5 mb-6">
         <div className="flex items-center gap-2.5 text-cyan-700 mb-1">
@@ -58,7 +58,7 @@ export default function PenilaianPage({
       )}
 
       {/* Stage Selector Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none">
         {STAGES.map((stg) => {
           const isActive = activeStageKey === stg.key;
           const stageScores = assessment?.scores?.[stg.key] || [];
@@ -125,7 +125,7 @@ export default function PenilaianPage({
                 </div>
 
                 {/* Score Button Group (1 - 5) */}
-                <div className="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50 shrink-0 self-start sm:self-center">
+                <div className="inline-flex rounded-xl border border-slate-200 p-0.5 sm:p-1 bg-slate-50 shrink-0 self-start sm:self-center">
                   {[1, 2, 3, 4, 5].map((val) => {
                     const isSelected = score === val;
                     return (
@@ -133,7 +133,7 @@ export default function PenilaianPage({
                         key={val}
                         type="button"
                         onClick={() => onChangeScore(activeStageKey, idx, val)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center ${
                           isSelected
                             ? 'bg-slate-900 text-white shadow-xs scale-102 ring-2 ring-slate-900/10'
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'

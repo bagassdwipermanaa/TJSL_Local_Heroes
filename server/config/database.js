@@ -63,6 +63,66 @@ export async function initDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
+    // 4. Create registrations table if not exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS registrations (
+        id VARCHAR(100) PRIMARY KEY,
+        nama VARCHAR(255),
+        statuspeg VARCHAR(50) DEFAULT 'Pegawai',
+        nip VARCHAR(100),
+        jabatan VARCHAR(255),
+        unit VARCHAR(255),
+        email VARCHAR(255),
+        hp VARCHAR(100),
+        atasan VARCHAR(255),
+        kategori VARCHAR(50) DEFAULT 'Individu',
+        komunitas VARCHAR(255),
+        anggota INT DEFAULT 0,
+        program VARCHAR(255),
+        desa VARCHAR(255),
+        kecamatan VARCHAR(255),
+        kabkota VARCHAR(255),
+        provinsi VARCHAR(255),
+        mulai VARCHAR(50),
+        frekuensi VARCHAR(100),
+        pilar VARCHAR(100),
+        penerima INT DEFAULT 0,
+        sdgs JSON,
+        masalah TEXT,
+        kegiatan TEXT,
+        peran TEXT,
+        dampak TEXT,
+        keberlanjutan TEXT,
+        inovasi TEXT,
+        mitra TEXT,
+        files JSON,
+        links JSON,
+        decl JSON,
+        status VARCHAR(50) DEFAULT 'draft',
+        review_status VARCHAR(50) DEFAULT 'baru',
+        review_notes TEXT,
+        submitted_at VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 5. Create users table if not exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(100) PRIMARY KEY,
+        nama VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        nip VARCHAR(100),
+        role VARCHAR(50) DEFAULT 'peserta',
+        password_hash VARCHAR(255) NOT NULL,
+        salt VARCHAR(100) NOT NULL,
+        token VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
     isConnected = true;
     console.log(`[Database] Terhubung ke MySQL ${config.db.host}:${config.db.port}/${config.db.database}`);
     return pool;

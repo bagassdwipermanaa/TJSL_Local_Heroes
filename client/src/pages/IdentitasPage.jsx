@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Users, MapPin, Calendar, Award, Globe, ArrowRight, Building, FileSpreadsheet } from 'lucide-react';
-import { SDGS_OPTIONS, PILAR_OPTIONS, KATEGORI_OPTIONS } from '../utils/constants';
+import { SDGS_OPTIONS, PILAR_OPTIONS } from '../utils/constants';
 
 export default function IdentitasPage({ assessment, onChangeIdent, onNext }) {
   const ident = assessment?.ident || {};
@@ -10,7 +10,7 @@ export default function IdentitasPage({ assessment, onChangeIdent, onNext }) {
   };
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+    <section className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-xs">
       {/* Header */}
       <div className="border-b border-slate-100 pb-5 mb-6">
         <div className="flex items-center gap-2.5 text-cyan-700 mb-1">
@@ -26,33 +26,6 @@ export default function IdentitasPage({ assessment, onChangeIdent, onNext }) {
       </div>
 
       <div className="space-y-6">
-        {/* Kategori Kepesertaan */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-            Kategori Penilaian
-          </label>
-          <div className="grid grid-cols-2 gap-3 max-w-md">
-            {KATEGORI_OPTIONS.map((cat) => {
-              const isSelected = (ident.kategori || 'Individu') === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => handleChange('kategori', cat)}
-                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-xs sm:text-sm font-bold transition-all ${
-                    isSelected
-                      ? 'border-cyan-700 bg-cyan-50/70 text-cyan-900 ring-2 ring-cyan-700/20'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  {cat === 'Individu' ? <User className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-                  <span>{cat}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Section: Data Pegawai / Penggerak */}
         <div className="pt-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
@@ -95,19 +68,6 @@ export default function IdentitasPage({ assessment, onChangeIdent, onNext }) {
                 placeholder="Contoh: PLN ES Kantor Pusat - Divisi TJSL"
                 value={ident.unit || ''}
                 onChange={(e) => handleChange('unit', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Nama Komunitas / Relawan (Jika ada)
-              </label>
-              <input
-                type="text"
-                placeholder="Contoh: Sahabat Mangrove Nusantara"
-                value={ident.komunitas || ''}
-                onChange={(e) => handleChange('komunitas', e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all"
               />
             </div>

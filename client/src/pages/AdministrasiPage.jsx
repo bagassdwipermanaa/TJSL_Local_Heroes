@@ -62,7 +62,7 @@ export default function AdministrasiPage({
       showNotification({
         type: 'success',
         title: 'Berkas Bukti Terunggah',
-        message: `Berkas "${file.name}" berhasil diunggah via Multer dan diverifikasi.`
+        message: `Berkas "${file.name}" berhasil diunggah dan diverifikasi.`
       });
     } catch (err) {
       showNotification({
@@ -93,7 +93,7 @@ export default function AdministrasiPage({
   let globalIndex = 0;
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+    <section className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-xs">
       {/* Header */}
       <div className="border-b border-slate-100 pb-5 mb-6">
         <div className="flex items-center gap-2.5 text-cyan-700 mb-1">
@@ -265,7 +265,7 @@ export default function AdministrasiPage({
                             />
                           </label>
                           <span className="text-[11px] text-slate-400 hidden sm:inline">
-                            Maks. 20 MB (Multer)
+                            Maks. 20 MB
                           </span>
                         </div>
                       )}

@@ -8,10 +8,12 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 export const config = {
-  port: parseInt(process.env.PORT || '3001', 10),
+  port: parseInt(process.env.PORT || '8002', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:3002',
   dataFile: path.resolve(__dirname, '../data/assessments.json'),
+  registrationDataFile: path.resolve(__dirname, '../data/registrations.json'),
+  userDataFile: path.resolve(__dirname, '../data/users.json'),
   db: {
     host: process.env.DB_HOST || 'db.bagasdp.online',
     user: process.env.DB_USER || 'bagas',

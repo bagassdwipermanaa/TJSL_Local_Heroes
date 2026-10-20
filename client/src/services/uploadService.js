@@ -28,3 +28,6 @@ export async function deleteUploadedFile(filename) {
     return false;
   }
 }
+
+export const uploadFileToServer = uploadFile;
+export const deleteFileFromServer = deleteUploadedFile;

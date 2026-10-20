@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pendaftaran PLN ES TJSL Local Heroes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F5;--surface:#FFFFFF;--ink:#15262E;--muted:#5A6B72;--line:#D6E0E0;
+  --brand:#0B5D86;--brand-ink:#FFFFFF;--sun:#F2B705;--leaf:#2F8A55;--danger:#C2412D;--soft:#E6F0F4;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1A1F;--surface:#16252C;--ink:#E6EEF0;--muted:#93A6AD;--line:#2A3D45;
+    --brand:#4BA9D6;--brand-ink:#0F1A1F;--sun:#F5C842;--leaf:#5BBF86;--danger:#E46C57;--soft:#1C3440;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1A1F;--surface:#16252C;--ink:#E6EEF0;--muted:#93A6AD;--line:#2A3D45;
+  --brand:#4BA9D6;--brand-ink:#0F1A1F;--sun:#F5C842;--leaf:#5BBF86;--danger:#E46C57;--soft:#1C3440;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(16px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
+header.top{padding-bottom:20px;border-bottom:3px solid var(--sun);margin-bottom:20px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end}
+header.top h1{margin:0;font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+header.top p{margin:8px 0 0;color:var(--muted);max-width:62ch}
+.conn{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--leaf)}.dot.bad{background:var(--danger)}
+.modes{display:none;gap:6px;margin-bottom:20px}
+.modes.show{display:flex}
+.mode{border:none;background:transparent;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted)}
+.mode[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.progress{position:static!important}}
+.progress{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.progress h2{font-size:.95rem;margin:0 0 10px}
+.progress ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.progress a{display:flex;gap:10px;align-items:center;padding:7px 8px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.9rem;font-weight:500}
+.progress a:hover{background:var(--soft)}
+.progress .st{width:22px;height:22px;border-radius:50%;flex:0 0 22px;display:grid;place-items:center;font-size:.75rem;font-weight:700;background:var(--soft);color:var(--muted)}
+.progress .st.done{background:var(--leaf);color:#fff}
+.statusbox{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:.86rem;color:var(--muted)}
+.statusbox b{color:var(--ink)}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:18px}
+section.card h2{margin:0 0 4px;font-size:1.2rem;display:flex;gap:10px;align-items:baseline}
+section.card h2 .num{color:var(--brand);font-weight:800}
+.desc{color:var(--muted);margin:0 0 18px;font-size:.92rem;max-width:70ch}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.full{grid-column:1/-1}
+.f>span.l{font-weight:600;font-size:.88rem}
+.f .req{color:var(--danger)}
+.f small{color:var(--muted);font-size:.8rem}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=month],input[type=url],select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:96px;resize:vertical}
+.invalid{border-color:var(--danger)!important;box-shadow:0 0 0 1px var(--danger)}
+.warn{color:var(--danger);font-size:.82rem;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:.84rem;cursor:pointer;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.doc{border-top:1px solid var(--line);padding:14px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:start}
+.doc:first-of-type{border-top:none;padding-top:0}
+.doc .t{font-weight:600}
+.doc .h{color:var(--muted);font-size:.84rem}
+.doc .files{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.doc .linkin{grid-column:1/-1}
+.file{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:8px;padding:6px 10px;font-size:.86rem}
+.file a{color:var(--brand);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.file button{border:none;background:none;color:var(--danger);cursor:pointer;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.small{padding:6px 12px;font-size:.85rem}
+.btn:focus-visible,.chip:focus-visible,.mode:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.decl label{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+.decl label:first-child{border-top:none}
+.decl input{width:18px;height:18px;margin-top:3px;accent-color:var(--brand);flex:0 0 18px}
+.actions{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 8px 24px color-mix(in srgb,var(--ink) 12%,transparent)}
+.actions .msg{font-size:.88rem;color:var(--muted)}
+.notice{padding:14px 16px;border-radius:12px;background:var(--soft);margin-bottom:18px;font-size:.92rem}
+.notice.ok{background:color-mix(in srgb,var(--leaf) 15%,transparent)}
+.notice.bad{background:color-mix(in srgb,var(--danger) 13%,transparent)}
+.syarat{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:12px;padding:14px 18px;margin-bottom:18px}
+.syarat summary{cursor:pointer;font-weight:700}
+.syarat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}
+@media (max-width:700px){.syarat-grid{grid-template-columns:1fr}}
+.syarat h3{font-size:.95rem;margin:10px 0 4px;color:var(--brand)}
+.syarat ul{margin:0;padding-left:18px;font-size:.9rem}
+.syarat li{margin-bottom:4px}
+/* dashboard */
+#adminView{display:none}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+@media (max-width:700px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:2rem;font-weight:800;line-height:1.1}
+.stat span{color:var(--muted);font-size:.85rem}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input,.toolbar select{width:auto;min-width:180px}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:.82rem}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:700;background:var(--soft);color:var(--muted)}
+.badge.sent{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand)}
+.badge.ok{background:color-mix(in srgb,var(--leaf) 18%,transparent);color:var(--leaf)}
+.badge.bad{background:color-mix(in srgb,var(--danger) 16%,transparent);color:var(--danger)}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+.detail{margin-top:18px}
+.detail dl{display:grid;grid-template-columns:220px minmax(0,1fr);gap:8px 16px;margin:0}
+@media (max-width:620px){.detail dl{grid-template-columns:1fr}}
+.detail dt{color:var(--muted);font-size:.86rem;font-weight:600}
+.detail dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.detail h3{margin:22px 0 10px;font-size:1rem;color:var(--brand)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:20;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>PLN ES TJSL Local Heroes</h1>
+      <p>Program apresiasi dan kompetisi bagi pegawai/TAD PLN Electricity Services yang secara sukarela menjadi penggerak kegiatan sosial di tengah masyarakat, baik individu maupun komunitas, selaras dengan Tujuan Pembangunan Berkelanjutan dan pilar TJSL. Isian dapat disimpan sebagai draf dan dilanjutkan sebelum dikirim.</p>
+    </div>
+    <div class="conn"><span class="dot" id="connDot"></span><span id="connText">Menghubungkan…</span></div>
+  </header>
+
+  <div class="modes" id="modes" role="tablist">
+    <button class="mode" role="tab" data-mode="form" aria-selected="true">Formulir pendaftaran</button>
+    <button class="mode" role="tab" data-mode="admin" aria-selected="false">Dasbor panitia</button>
+  </div>
+
+  <div id="formView">
+    <details class="syarat">
+      <summary>Baca persyaratan kompetisi</summary>
+      <p class="desc" style="margin-top:10px">Persyaratan menekankan bahwa kegiatan benar-benar sudah dijalankan dan diakui oleh masyarakat sekitar, bukan sekadar rencana atau klaim sepihak.</p>
+      <div class="syarat-grid">
+        <div><h3>1. Pengusul</h3><ul><li>Pegawai/TAD aktif PLN Electricity Services, sebagai individu maupun penggerak utama komunitas.</li><li>Berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya donatur.</li><li>Mendapat surat rekomendasi atau persetujuan dari atasan langsung atau pimpinan unit.</li></ul></div>
+        <div><h3>2. Bukti implementasi</h3><ul><li>Kegiatan berjalan minimal 6 bulan secara berkesinambungan dan masih aktif.</li><li>Catatan pelaksanaan kegiatan (logbook, jadwal rutin, atau daftar kegiatan).</li><li>Dokumentasi foto/video dengan keterangan waktu dan lokasi dari beberapa periode.</li><li>Data penerima manfaat (daftar nama, jumlah peserta, atau daftar hadir).</li><li>Lokasi dapat dikunjungi dan bersedia diverifikasi lapangan.</li></ul></div>
+        <div><h3>3. Pengakuan lingkungan sekitar</h3><ul><li>Surat keterangan pemerintah setempat (Kepala Desa/Lurah, minimal RT/RW).</li><li>Testimoni tertulis atau video dari minimal 3 penerima manfaat.</li></ul></div>
+        <div><h3>4. Kesesuaian program</h3><ul><li>Sukarela, bukan bagian dari tugas jabatan atau proyek TJSL yang didanai penuh perusahaan.</li><li>Bebas unsur politik praktis, SARA, dan kepentingan komersial pribadi.</li><li>Surat pernyataan keaslian bermeterai. Ketidaksesuaian saat verifikasi berakibat diskualifikasi.</li></ul></div>
+      </div>
+    </details>
+    <div id="topNotice"></div>
+    <div class="layout">
+      <aside class="progress" aria-label="Kelengkapan formulir">
+        <h2>Kelengkapan</h2>
+        <ol id="progList"></ol>
+        <div class="statusbox" id="statusBox">Status: <b>Belum disimpan</b></div>
+      </aside>
+      <main id="formMain"></main>
+    </div>
+  </div>
+
+  <div id="adminView">
+    <div class="stats" id="stats"></div>
+    <div class="toolbar">
+      <input type="text" id="q" placeholder="Cari nama, program, unit" aria-label="Cari pendaftar">
+      <select id="fKat" aria-label="Filter status kepegawaian"><option value="">Semua pegawai/TAD</option><option>Pegawai</option><option>TAD</option></select>
+      <select id="fSt" aria-label="Filter status"><option value="">Semua status</option><option value="draft">Draf</option><option value="terkirim">Terkirim</option></select>
+    </div>
+    <div class="tablewrap" id="adminTable"></div>
+    <div id="detail"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SDGS=["Tanpa Kemiskinan","Tanpa Kelaparan","Kehidupan Sehat dan Sejahtera","Pendidikan Berkualitas","Kesetaraan Gender","Air Bersih dan Sanitasi Layak","Energi Bersih dan Terjangkau","Pekerjaan Layak dan Pertumbuhan Ekonomi","Industri, Inovasi dan Infrastruktur","Berkurangnya Kesenjangan","Kota dan Permukiman Berkelanjutan","Konsumsi dan Produksi Bertanggung Jawab","Penanganan Perubahan Iklim","Ekosistem Lautan","Ekosistem Daratan","Perdamaian, Keadilan dan Kelembagaan Tangguh","Kemitraan untuk Mencapai Tujuan"];
+const PILAR=["Sosial","Ekonomi","Lingkungan","Hukum & Tata Kelola"];
+
+const SECTIONS=[
+ {id:"pengusul",title:"Data pengusul",desc:"Identitas pegawai/TAD PLN Electricity Services yang menjadi penggerak utama kegiatan.",fields:[
+  {k:"nama",l:"Nama lengkap",t:"text",req:1},
+  {k:"statuspeg",l:"Status kepegawaian",t:"select",o:["Pegawai","TAD"],req:1},
+  {k:"nip",l:"NIP / nomor induk TAD",t:"text",req:1},
+  {k:"jabatan",l:"Jabatan",t:"text",req:1},
+  {k:"unit",l:"Unit / bidang",t:"text",req:1},
+  {k:"email",l:"Email kantor",t:"email",req:1},
+  {k:"hp",l:"Nomor HP / WhatsApp",t:"tel",req:1},
+  {k:"atasan",l:"Nama atasan langsung / pimpinan unit",t:"text",req:1},
+  {k:"komunitas",l:"Nama komunitas (jika ada)",t:"text"},
+  {k:"anggota",l:"Jumlah anggota komunitas (jika ada)",t:"number"}
+ ]},
+ {id:"program",title:"Profil program",desc:"Gambaran umum kegiatan sosial yang Anda daftarkan.",fields:[
+  {k:"program",l:"Nama program / kegiatan",t:"text",req:1,full:1},
+  {k:"desa",l:"Desa / kelurahan",t:"text",req:1},
+  {k:"kecamatan",l:"Kecamatan",t:"text",req:1},
+  {k:"kabkota",l:"Kabupaten / kota",t:"text",req:1},
+  {k:"provinsi",l:"Provinsi",t:"text",req:1},
+  {k:"mulai",l:"Mulai kegiatan",t:"month",req:1,hint:"Kegiatan minimal sudah berjalan 6 bulan dan masih aktif."},
+  {k:"frekuensi",l:"Frekuensi kegiatan",t:"select",o:["Harian","Mingguan","Dua mingguan","Bulanan","Lainnya"],req:1},
+  {k:"pilar",l:"Pilar TJSL",t:"select",o:PILAR,req:1},
+  {k:"penerima",l:"Jumlah penerima manfaat (orang)",t:"number",req:1},
+  {k:"sdgs",l:"Tujuan Pembangunan Berkelanjutan yang disasar",t:"sdgs",req:1,full:1,hint:"Pilih tujuan yang paling sesuai dengan program."}
+ ]},
+ {id:"uraian",title:"Uraian kegiatan",desc:"Jawaban ini menjadi bahan utama penilaian juri. Tulis dengan jelas dan sertakan angka bila ada.",fields:[
+  {k:"masalah",l:"Latar belakang dan masalah yang diatasi",t:"textarea",req:1,full:1},
+  {k:"kegiatan",l:"Bentuk kegiatan yang dilakukan",t:"textarea",req:1,full:1},
+  {k:"peran",l:"Peran Anda secara langsung",t:"textarea",req:1,full:1,hint:"Misalnya penggagas, penggerak, pelaksana; berapa waktu dan tenaga yang Anda curahkan."},
+  {k:"dampak",l:"Dampak dan manfaat bagi masyarakat",t:"textarea",req:1,full:1,hint:"Perubahan yang terukur: pendapatan, akses pendidikan, kesehatan, lingkungan."},
+  {k:"keberlanjutan",l:"Keberlanjutan dan rencana ke depan",t:"textarea",req:1,full:1},
+  {k:"inovasi",l:"Inovasi atau keunikan pendekatan",t:"textarea",full:1},
+  {k:"mitra",l:"Mitra dan pihak yang terlibat",t:"textarea",full:1,hint:"Pemerintah desa, sekolah, UMKM, LSM, komunitas lain."}
+ ]}
+];
+const DOCS=[
+ {k:"rekomendasi",l:"Surat rekomendasi atasan langsung / pimpinan unit",h:"PDF atau foto surat rekomendasi atau persetujuan yang ditandatangani.",req:1},
+ {k:"logbook",l:"Catatan pelaksanaan kegiatan",h:"Logbook, jadwal rutin, atau daftar kegiatan yang menunjukkan frekuensi dan konsistensi pelaksanaan.",req:1},
+ {k:"dokumentasi",l:"Dokumentasi kegiatan",h:"Foto/video dengan keterangan waktu dan lokasi dari beberapa periode berbeda, dari awal hingga saat ini.",req:1},
+ {k:"penerima",l:"Data penerima manfaat",h:"Daftar nama, jumlah peserta, atau daftar hadir kegiatan.",req:1},
+ {k:"suket",l:"Surat keterangan pemerintah setempat",h:"Dari Kepala Desa/Lurah, minimal RT/RW, yang menyatakan kegiatan benar dilaksanakan oleh pengusul.",req:1},
+ {k:"testimoni",l:"Testimoni penerima manfaat",h:"Tertulis atau video dari minimal 3 penerima manfaat tentang manfaat yang dirasakan langsung.",req:1},
+ {k:"pernyataan",l:"Surat pernyataan keaslian bermeterai",h:"Pindaian surat yang sudah ditandatangani di atas meterai.",req:1}
+];
+const DECL=[
+ "Saya adalah pegawai/TAD aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
+ "Kegiatan ini saya lakukan secara sukarela dan bukan bagian dari tugas jabatan atau proyek TJSL yang didanai penuh perusahaan.",
+ "Kegiatan ini tidak mengandung unsur politik praktis, SARA, maupun kepentingan komersial pribadi.",
+ "Kegiatan masih aktif, lokasinya dapat dikunjungi, dan saya bersedia diverifikasi lapangan oleh tim penilai.",
+ "Seluruh dokumen dan informasi yang saya sampaikan benar. Apabila ditemukan ketidaksesuaian saat verifikasi, saya bersedia didiskualifikasi."
+];
+const ACCEPT="image/jpeg,image/png,image/webp,image/gif,application/pdf,video/mp4,video/webm";
+const LS="tjsl-reg-draft-v1";
+
+function blank(){return {data:{},sdgs:[],files:{},links:{},decl:DECL.map(()=>false),status:"draft",createdAt:null,updatedAt:null,submittedAt:null}}
+let S=blank();
+let db=null,user=null,assets=null,uid=null,myRef=null,isAdmin=false,canWrite=true;
+let dirty=false,saving=false;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2800)}
+const isKom=()=>S.data.kategori==="Komunitas";
+const fmtDate=iso=>iso?new Date(iso).toLocaleString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}):"–";
+
+/* ---------- render form ---------- */
+function fieldHtml(f){
+  const req=f.req?' <span class="req" aria-hidden="true">*</span>':"";
+  const cls="f"+(f.full||f.t==="textarea"?" full":"");
+  const hint=f.hint?`<small>${f.hint}</small>`:"";
+  let ctrl;
+  if(f.t==="select")ctrl=`<select data-f="${f.k}"><option value="">Pilih</option>${f.o.map(o=>`<option>${esc(o)}</option>`).join("")}</select>`;
+  else if(f.t==="textarea")ctrl=`<textarea data-f="${f.k}"></textarea>`;
+  else if(f.t==="sdgs")ctrl=`<select data-sdgsel="1"><option value="">Pilih tujuan</option>${SDGS.map((s,i)=>`<option value="${i+1}">${i+1}. ${esc(s)}</option>`).join("")}</select>`;
+  else ctrl=`<input type="${f.t}" data-f="${f.k}" ${f.t==="number"?'min="0"':""}>`;
+  const extra=f.k==="mulai"?`<span class="warn" id="mulaiWarn"></span>`:"";
+  const tag="label";
+  return `<${tag} class="${cls}" ${f.show?`data-show="${f.show}"`:""}><span class="l">${f.l}${req}</span>${ctrl}${hint}${extra}</${tag}>`;
+}
+function renderForm(){
+  let h="";
+  SECTIONS.forEach((s,i)=>{
+    h+=`<section class="card" id="sec-${s.id}"><h2><span class="num">${i+1}</span>${s.title}</h2><p class="desc">${s.desc}</p><div class="grid">${s.fields.map(fieldHtml).join("")}</div></section>`;
+  });
+  h+=`<section class="card" id="sec-dokumen"><h2><span class="num">4</span>Dokumen pendukung</h2>
+  <p class="desc">Unggah PDF, foto (JPG/PNG), atau video (MP4) maksimal 20 MB per berkas. Berkas Word perlu disimpan sebagai PDF dulu. Anda juga bisa menempelkan tautan Google Drive/OneDrive yang dapat diakses panitia.</p>
+  <div id="docList">${DOCS.map(d=>`<div class="doc" data-doc="${d.k}">
+    <div><div class="t">${d.l}${d.req?' <span class="req" style="color:var(--danger)">*</span>':""}</div><div class="h">${d.h}</div></div>
+    <div class="upl"><label class="btn small" style="display:inline-block"><input type="file" accept="${ACCEPT}" multiple data-up="${d.k}" hidden>Unggah berkas</label></div>
+    <div class="files" id="files-${d.k}"></div>
+    <input class="linkin" type="url" placeholder="atau tempel tautan berkas (https://…)" data-link="${d.k}" aria-label="Tautan ${esc(d.l)}">
+  </div>`).join("")}</div></section>`;
+  h+=`<section class="card" id="sec-pernyataan"><h2><span class="num">5</span>Pernyataan</h2><p class="desc">Centang semua pernyataan sebelum mengirim pendaftaran.</p>
+  <div class="decl">${DECL.map((d,i)=>`<label><input type="checkbox" data-decl="${i}"><span>${d}</span></label>`).join("")}</div></section>`;
+  h+=`<div class="actions"><span class="msg" id="actMsg">Lengkapi isian bertanda * sebelum mengirim.</span>
+  <span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="btnDraft" type="button">Simpan draf</button><button class="btn primary" id="btnSend" type="button">Kirim pendaftaran</button></span></div>`;
+  $("#formMain").innerHTML=h;
+}
+function fillForm(){
+  document.querySelectorAll("[data-f]").forEach(el=>el.value=S.data[el.dataset.f]??"");
+  document.querySelectorAll("[data-sdgsel]").forEach(el=>el.value=S.sdgs.length?String(S.sdgs[0]):"");
+  document.querySelectorAll("[data-link]").forEach(el=>el.value=S.links[el.dataset.link]||"");
+  document.querySelectorAll("[data-decl]").forEach(el=>el.checked=!!S.decl[+el.dataset.decl]);
+  DOCS.forEach(d=>renderFiles(d.k));
+  refresh();
+}
+function renderFiles(k){
+  const box=document.getElementById("files-"+k);if(!box)return;
+  const list=S.files[k]||[];
+  box.innerHTML="";
+  list.forEach((f,i)=>{
+    const row=document.createElement("div");row.className="file";
+    const a=document.createElement("a");a.href="/_blob/"+f.id;a.target="_blank";a.rel="noopener";a.textContent=f.name;
+    const sz=document.createElement("span");sz.textContent=(f.size/1048576).toFixed(1)+" MB";sz.style.color="var(--muted)";
+    const del=document.createElement("button");del.type="button";del.textContent="Hapus";del.dataset.delfile=k;del.dataset.idx=i;
+    row.append(a,sz,del);box.append(row);
+  });
+}
+
+/* ---------- validation & progress ---------- */
+function monthsSince(m){if(!m)return null;const[y,mo]=m.split("-").map(Number);const n=new Date();return (n.getFullYear()-y)*12+(n.getMonth()+1-mo)}
+function sectionDone(){
+  const r={};
+  SECTIONS.forEach(s=>{
+    r[s.id]=s.fields.every(f=>{
+      if(!f.req)return true;
+      if(f.req==="kom"&&!isKom())return true;
+      if(f.t==="sdgs")return S.sdgs.length>0;
+      return String(S.data[f.k]??"").trim()!=="";
+    });
+  });
+  r.dokumen=DOCS.every(d=>!d.req||(S.files[d.k]||[]).length>0||(S.links[d.k]||"").trim()!=="");
+  r.pernyataan=S.decl.every(Boolean);
+  return r;
+}
+const NAV=[...SECTIONS.map(s=>[s.id,s.title]),["dokumen","Dokumen pendukung"],["pernyataan","Pernyataan"]];
+function refresh(){
+  document.querySelectorAll("[data-show='kom']").forEach(el=>el.style.display=isKom()?"":"none");
+  const ms=monthsSince(S.data.mulai);const w=$("#mulaiWarn");
+  if(w)w.textContent=ms!=null&&ms<6?`Kegiatan baru berjalan ${Math.max(ms,0)} bulan. Syarat minimal 6 bulan.`:"";
+  const done=sectionDone();
+  $("#progList").innerHTML=NAV.map(([id,t],i)=>`<li><a href="#sec-${id}"><span class="st ${done[id]?"done":""}">${done[id]?"✓":i+1}</span>${t}</a></li>`).join("");
+  const sb=$("#statusBox");
+  if(S.status==="terkirim")sb.innerHTML=`Status: <b>Terkirim</b><br>${fmtDate(S.submittedAt)}${dirty?"<br>Ada perubahan yang belum dikirim.":""}`;
+  else sb.innerHTML=`Status: <b>${S.updatedAt?"Draf tersimpan":"Belum disimpan"}</b>${S.updatedAt?"<br>"+fmtDate(S.updatedAt):""}`;
+  const all=Object.values(done).every(Boolean)&&!(ms!=null&&ms<6);
+  const send=$("#btnSend");
+  if(send){
+    send.disabled=!db||!uid||!canWrite||saving;
+    send.textContent=S.status==="terkirim"?"Kirim ulang perubahan":"Kirim pendaftaran";
+    $("#btnDraft").disabled=!db||!uid||!canWrite||saving;
+    $("#actMsg").textContent=!db||!uid?"Formulir dapat diisi, tetapi pengiriman belum tersedia di tampilan ini.":all?"Semua isian lengkap. Siap dikirim.":"Lengkapi isian bertanda * sebelum mengirim.";
+  }
+}
+
+/* ---------- local draft (per perangkat) ---------- */
+let lsTimer;
+function localSave(){clearTimeout(lsTimer);lsTimer=setTimeout(()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}},600)}
+function localLoad(){try{const v=JSON.parse(localStorage.getItem(LS));return v&&v.data?v:null}catch(e){return null}}
+
+/* ---------- save to panitia ---------- */
+async function persist(status){
+  if(!myRef)return false;
+  saving=true;refresh();
+  const now=new Date().toISOString();
+  const body=JSON.parse(JSON.stringify({...S,status,createdAt:S.createdAt||now,updatedAt:now,submittedAt:status==="terkirim"?now:S.submittedAt}));
+  try{
+    await myRef.set(body);
+    S=Object.assign(blank(),body);dirty=false;localSave();
+    return true;
+  }catch(e){
+    if(e&&e.code==="invalid_argument"){canWrite=false;setTopNotice("bad","Akun Anda belum memiliki akses untuk mengirim pendaftaran. Hubungi panitia agar diberi akses Contributor.");}
+    else if(e&&e.code==="quota_exceeded")toast("Kapasitas penyimpanan panitia penuh. Hubungi panitia.");
+    else toast("Gagal menyimpan. Periksa koneksi lalu coba lagi.");
+    return false;
+  }finally{saving=false;refresh();}
+}
+function firstMissing(){
+  const done=sectionDone();
+  const id=NAV.find(([id])=>!done[id]);
+  return id?id[0]:null;
+}
+function markInvalid(){
+  document.querySelectorAll("[data-f]").forEach(el=>{
+    const f=SECTIONS.flatMap(s=>s.fields).find(x=>x.k===el.dataset.f);
+    const need=f&&f.req&&!(f.req==="kom"&&!isKom());
+    el.classList.toggle("invalid",!!need&&String(S.data[f.k]??"").trim()==="");
+  });
+}
+
+/* ---------- uploads ---------- */
+async function handleUpload(k,files){
+  if(!assets){toast("Unggah berkas tidak tersedia untuk akun ini. Silakan tempel tautan berkas.");return}
+  for(const file of files){
+    if(!ACCEPT.split(",").includes(file.type)){toast(`${file.name}: format tidak didukung. Gunakan PDF, JPG, PNG, atau MP4.`);continue}
+    if(file.size>20*1048576){toast(`${file.name} lebih dari 20 MB.`);continue}
+    toast(`Mengunggah ${file.name}…`);
+    try{
+      const r=await assets.upload(file,{type:file.type});
+      (S.files[k]=S.files[k]||[]).push({id:r.id,name:file.name,size:r.sizeBytes||file.size,type:r.contentType||file.type});
+      renderFiles(k);dirty=true;refresh();localSave();
+      if(myRef&&canWrite)await persist(S.status);
+      toast(`${file.name} terunggah.`);
+    }catch(e){
+      const c=e&&e.code;
+      toast(c==="unsupported_type"?`${file.name}: format tidak didukung.`:c==="too_large"?`${file.name} terlalu besar.`:`${file.name} gagal diunggah. Coba lagi atau tempel tautan.`);
+    }
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset.f){S.data[el.dataset.f]=el.value;el.classList.remove("invalid");dirty=true;refresh();localSave();return}
+  if(el.dataset.link){S.links[el.dataset.link]=el.value;dirty=true;refresh();localSave();return}
+  if(el.dataset.decl!=null){S.decl[+el.dataset.decl]=el.checked;dirty=true;refresh();localSave();return}
+  if(["q","fKat","fSt"].includes(el.id))renderAdmin();
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.up&&el.files.length){handleUpload(el.dataset.up,[...el.files]);el.value="";return}
+  if(el.dataset.sdgsel){S.sdgs=el.value?[+el.value]:[];dirty=true;refresh();localSave();return}
+  if(el.tagName==="SELECT"&&el.dataset.f){S.data[el.dataset.f]=el.value;dirty=true;refresh();localSave()}
+  if(["fKat","fSt"].includes(el.id))renderAdmin();
+});
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.sdg){const n=+b.dataset.sdg;S.sdgs=S.sdgs.includes(n)?S.sdgs.filter(x=>x!==n):[...S.sdgs,n].sort((a,c)=>a-c);b.setAttribute("aria-pressed",S.sdgs.includes(n)?"true":"false");dirty=true;refresh();localSave();return}
+  if(b.dataset.delfile){const k=b.dataset.delfile;S.files[k].splice(+b.dataset.idx,1);renderFiles(k);dirty=true;refresh();localSave();return}
+  if(b.dataset.mode){setMode(b.dataset.mode);return}
+  if(b.id==="btnDraft"){if(await persist(S.status==="terkirim"?"terkirim":"draft"))toast(S.status==="terkirim"?"Perubahan tersimpan.":"Draf tersimpan.");return}
+  if(b.id==="btnSend"){
+    markInvalid();
+    const miss=firstMissing();const ms=monthsSince(S.data.mulai);
+    if(miss){toast("Masih ada isian wajib yang belum lengkap.");document.getElementById("sec-"+miss).scrollIntoView({behavior:"smooth"});return}
+    if(ms!=null&&ms<6){toast("Kegiatan belum memenuhi syarat minimal 6 bulan.");$("#sec-program").scrollIntoView({behavior:"smooth"});return}
+    if(await persist("terkirim")){setTopNotice("ok",`Pendaftaran terkirim ke panitia pada ${fmtDate(S.submittedAt)}. Anda masih bisa memperbarui isian dan mengirim ulang.`);window.scrollTo({top:0,behavior:"smooth"})}
+    return;
+  }
+  if(b.dataset.status){saveReview(b.dataset.status);return}
+  if(b.id==="closeDetail"){$("#detail").innerHTML="";openId=null;return}
+});
+function setTopNotice(kind,msg){const n=$("#topNotice");n.innerHTML="";if(!msg)return;const d=document.createElement("div");d.className="notice "+kind;d.textContent=msg;n.append(d)}
+function setConn(state,text){$("#connDot").className="dot "+state;$("#connText").textContent=text}
+
+/* ---------- admin ---------- */
+let ALL=[],REV={},openId=null;
+function setMode(m){
+  document.querySelectorAll(".mode").forEach(x=>x.setAttribute("aria-selected",x.dataset.mode===m?"true":"false"));
+  $("#formView").style.display=m==="form"?"":"none";
+  $("#adminView").style.display=m==="admin"?"block":"none";
+  if(m==="admin")renderAdmin();
+}
+const REVIEW=[["baru","Baru",""],["diperiksa","Sedang diperiksa","sent"],["lolos","Lolos administrasi","ok"],["gugur","Gugur","bad"]];
+function revBadge(id){const r=REV[id]?.status||"baru";const x=REVIEW.find(v=>v[0]===r)||REVIEW[0];return `<span class="badge ${x[2]}">${x[1]}</span>`}
+function renderAdmin(){
+  const sent=ALL.filter(x=>x.d.status==="terkirim");
+  $("#stats").innerHTML=[
+    [ALL.length,"Total pendaftar"],[sent.length,"Sudah mengirim"],
+    [ALL.filter(x=>x.d.data?.statuspeg==="Pegawai").length,"Pegawai"],
+    [ALL.filter(x=>x.d.data?.statuspeg==="TAD").length,"TAD"]
+  ].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+  const q=($("#q").value||"").toLowerCase(),k=$("#fKat").value,st=$("#fSt").value;
+  const rows=ALL.filter(x=>{
+    const d=x.d.data||{};
+    if(k&&d.statuspeg!==k)return false;
+    if(st&&x.d.status!==st)return false;
+    if(q&&![d.nama,d.program,d.unit,d.komunitas,d.kabkota].join(" ").toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>(b.d.updatedAt||"").localeCompare(a.d.updatedAt||""));
+  if(!ALL.length){$("#adminTable").innerHTML=`<div class="empty">Belum ada pendaftar. Bagikan tautan halaman ini kepada pegawai agar mereka dapat mendaftar.</div>`;return}
+  if(!rows.length){$("#adminTable").innerHTML=`<div class="empty">Tidak ada pendaftar yang cocok dengan filter.</div>`;return}
+  $("#adminTable").innerHTML=`<table><thead><tr><th>Nama</th><th>Status</th><th>Program</th><th>Lokasi</th><th>Kiriman</th><th>Verifikasi panitia</th><th>Diperbarui</th></tr></thead><tbody>${rows.map(x=>{const d=x.d.data||{};return `<tr data-open="${esc(x.id)}" tabindex="0">
+    <td><b>${esc(d.nama||"Tanpa nama")}</b><br><span style="color:var(--muted);font-size:.82rem">${esc(d.unit||"")}</span></td>
+    <td>${esc(d.statuspeg||"–")}${d.komunitas?"<br><span style='color:var(--muted);font-size:.82rem'>"+esc(d.komunitas)+"</span>":""}</td>
+    <td>${esc(d.program||"–")}</td><td>${esc(d.kabkota||"–")}</td>
+    <td><span class="badge ${x.d.status==="terkirim"?"sent":""}">${x.d.status==="terkirim"?"Terkirim":"Draf"}</span></td>
+    <td>${revBadge(x.id)}</td><td>${fmtDate(x.d.updatedAt)}</td></tr>`}).join("")}</tbody></table>`;
+  if(openId)renderDetail(openId);
+}
+document.addEventListener("click",e=>{const tr=e.target.closest("tr[data-open]");if(tr){openId=tr.dataset.open;renderDetail(openId);$("#detail").scrollIntoView({behavior:"smooth"})}});
+document.addEventListener("keydown",e=>{const tr=e.target.closest&&e.target.closest("tr[data-open]");if(tr&&e.key==="Enter"){openId=tr.dataset.open;renderDetail(openId)}});
+function dlRows(pairs){return `<dl>${pairs.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b||"–")}</dd>`).join("")}</dl>`}
+function renderDetail(id){
+  const x=ALL.find(v=>v.id===id);if(!x){$("#detail").innerHTML="";return}
+  const cur=$("#revNote");const keep=cur&&document.activeElement===cur?cur.value:null;
+  const s=x.d,d=s.data||{};const rv=REV[id]||{};
+  const fieldsOf=sec=>SECTIONS.find(v=>v.id===sec).fields.filter(f=>f.t!=="sdgs"&&(!f.show||d.kategori==="Komunitas")).map(f=>[f.l,d[f.k]]);
+  const docsHtml=DOCS.map(doc=>{
+    const files=(s.files&&s.files[doc.k])||[];const link=(s.links&&s.links[doc.k])||"";
+    const items=files.map(f=>`<a href="/_blob/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">${esc(f.name)}</a>`);
+    if(/^https?:\/\//i.test(link))items.push(`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Tautan berkas</a>`);
+    return `<dt>${esc(doc.l)}</dt><dd>${items.length?items.join("<br>"):'<span class="warn">Belum ada</span>'}</dd>`;
+  }).join("");
+  $("#detail").innerHTML=`<section class="card detail">
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+      <div><h2 style="margin:0">${esc(d.nama||"Tanpa nama")}</h2><p class="desc" style="margin:4px 0 0">${esc(d.program||"")}</p></div>
+      <button class="btn small" id="closeDetail" type="button">Tutup</button>
+    </div>
+    <h3>Verifikasi panitia</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${REVIEW.map(([k,l])=>`<button type="button" class="chip" data-status="${k}" aria-pressed="${(rv.status||"baru")===k}">${l}</button>`).join("")}</div>
+    <textarea id="revNote" placeholder="Catatan panitia (hanya terlihat oleh panitia)">${esc(rv.catatan||"")}</textarea>
+    <div style="margin-top:8px"><button class="btn small primary" data-status="${esc(rv.status||"baru")}" type="button">Simpan catatan</button></div>
+    <h3>Data pengusul</h3>${dlRows(fieldsOf("pengusul"))}
+    <h3>Profil program</h3>${dlRows([...fieldsOf("program"),["Tujuan Pembangunan Berkelanjutan",(s.sdgs||[]).map(n=>n+". "+SDGS[n-1]).join("\n")]])}
+    <h3>Uraian kegiatan</h3>${dlRows(fieldsOf("uraian"))}
+    <h3>Dokumen pendukung</h3><dl>${docsHtml}</dl>
+    <h3>Pernyataan</h3>${dlRows(DECL.map((t,i)=>[`Pernyataan ${i+1}`,(s.decl||[])[i]?"Disetujui":"Belum disetujui"]))}
+    <p class="desc" style="margin-top:16px">Status kiriman: ${s.status==="terkirim"?"Terkirim "+fmtDate(s.submittedAt):"Masih draf"} · Terakhir diperbarui ${fmtDate(s.updatedAt)}</p>
+  </section>`;
+  if(keep!=null){const n=$("#revNote");n.value=keep;n.focus()}
+}
+async function saveReview(status){
+  if(!openId||!db)return;
+  const note=($("#revNote")||{}).value||"";
+  try{await db.doc("panitia/"+openId).set({status,catatan:note,updatedAt:new Date().toISOString()});toast("Verifikasi tersimpan.")}
+  catch(e){toast("Gagal menyimpan verifikasi.")}
+}
+
+/* ---------- boot ---------- */
+renderForm();
+const local=localLoad();if(local)S=Object.assign(blank(),local);
+fillForm();
+(async()=>{
+  if(!window.claude||typeof window.claude.use!=="function"){setConn("bad","Mode luring: buka melalui claude.ai untuk mengirim");refresh();return}
+  try{[db,user]=await Promise.all([claude.use("db"),claude.use("user")])}catch(e){}
+  if(!db||!user){setConn("bad","Masuk ke claude.ai untuk mengirim pendaftaran");refresh();return}
+  uid=await user.id();
+  if(!uid){setConn("bad","Masuk ke claude.ai untuk mengirim pendaftaran");refresh();return}
+  claude.use("assets").then(a=>{assets=a;if(!a)document.querySelectorAll(".upl").forEach(el=>el.innerHTML='<small style="color:var(--muted)">Gunakan tautan berkas</small>')});
+  myRef=db.doc("pendaftaran/"+uid);
+  try{
+    const snap=await myRef.get();
+    if(snap.exists){
+      const remote=Object.assign(blank(),JSON.parse(JSON.stringify(snap.data())));
+      if(!local||(remote.updatedAt||"")>=(local.updatedAt||"")||!local.updatedAt&&remote.updatedAt){S=remote;dirty=false}
+      else dirty=true;
+      fillForm();
+      if(S.status==="terkirim")setTopNotice("ok",`Pendaftaran Anda sudah terkirim pada ${fmtDate(S.submittedAt)}. Anda masih bisa memperbarui isian dan mengirim ulang.`);
+    }
+  }catch(e){}
+  setConn("ok","Terhubung ke panitia");
+  refresh();
+  try{isAdmin=await user.canEdit()}catch(e){isAdmin=false}
+  if(isAdmin){
+    $("#modes").classList.add("show");
+    db.collection("pendaftaran").onSnapshot(snap=>{ALL=snap.docs.map(d=>({id:d.id,d:d.data()||{}}));renderAdmin()},()=>{});
+    db.collection("panitia").onSnapshot(snap=>{REV={};snap.docs.forEach(d=>REV[d.id]=d.data()||{});renderAdmin()},()=>{});
+  }
+})();
+</script>
+</body>
+</html>

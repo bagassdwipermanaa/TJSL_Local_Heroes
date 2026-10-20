@@ -26,6 +26,15 @@
   background: #94a3b8;
 }
 
+/* Hide scrollbar for clean touch swipe */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Print Layout Support */
 @media print {
   body {

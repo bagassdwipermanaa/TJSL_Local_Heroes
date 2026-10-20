@@ -10,7 +10,13 @@ import AdministrasiPage from './pages/AdministrasiPage';
 import PenilaianPage from './pages/PenilaianPage';
 import RekomendasiPage from './pages/RekomendasiPage';
 import RekapPage from './pages/RekapPage';
+import PendaftaranPage from './pages/PendaftaranPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import { useNotification } from './hooks/useNotification';
+import { useRouter } from './hooks/useRouter';
+import { useAuth } from './hooks/useAuth';
 import {
   createBlankAssessment,
   getAllAssessments,
@@ -20,11 +26,80 @@ import {
 } from './services/assessmentService';
 
 export default function App() {
+  const { user } = useAuth();
   const { showNotification, auditLogs } = useNotification();
+  const { route, navigate } = useRouter();
+  const { appMode, activeStep } = route;
   const [currentAssessment, setCurrentAssessment] = useState(() => createBlankAssessment());
   const [assessments, setAssessments] = useState(() => getAllAssessments());
-  const [activeStep, setActiveStep] = useState('identitas');
   const [isAuditLogOpen, setIsAuditLogOpen] = useState(false);
+
+  const handleSelectAppMode = useCallback((mode) => {
+    if (mode === 'dashboard') {
+      if (!user || user.role !== 'admin') {
+        showNotification({
+          type: 'error',
+          title: 'Akses Ditolak',
+          message: 'Dashboard Administrator hanya dapat diakses oleh akun Admin.'
+        });
+        return;
+      }
+    } else if (mode === 'penilaian') {
+      if (!user) {
+        navigate('login');
+        showNotification({
+          type: 'warning',
+          title: 'Akses Dibatasi',
+          message: 'Silakan masuk dengan akun dewan juri atau admin untuk mengakses penilaian.'
+        });
+        return;
+      }
+      if (user.role === 'pendaftar') {
+        showNotification({
+          type: 'error',
+          title: 'Akses Ditolak',
+          message: 'Akun peserta/pendaftar hanya dapat mengakses formulir pendaftaran inisiatif.'
+        });
+        return;
+      }
+    } else if (mode === 'pendaftaran') {
+      if (user && user.role === 'penilai') {
+        showNotification({
+          type: 'info',
+          title: 'Mode Juri Aktif',
+          message: 'Akun dewan juri difokuskan pada lembar evaluasi penilaian.'
+        });
+        return;
+      }
+    }
+    navigate(mode, mode === 'penilaian' ? 'identitas' : undefined);
+  }, [navigate, user, showNotification]);
+
+  // Strict Role Route Guards (Redirects if URL does not match role)
+  useEffect(() => {
+    if (appMode === 'login' || appMode === 'register') return;
+
+    if (user?.role === 'admin') {
+      // If admin lands on /pendaftaran default, redirect to /dashboard
+      if (appMode === 'pendaftaran') {
+        navigate('dashboard', undefined, true);
+      }
+    } else if (user?.role === 'pendaftar') {
+      if (appMode === 'penilaian' || appMode === 'dashboard') {
+        navigate('pendaftaran', undefined, true);
+      }
+    } else if (user?.role === 'penilai') {
+      if (appMode === 'pendaftaran' || appMode === 'dashboard') {
+        navigate('penilaian', 'identitas', true);
+      }
+    } else if (!user && (appMode === 'penilaian' || appMode === 'dashboard')) {
+      navigate('pendaftaran', undefined, true);
+    }
+  }, [user, appMode, navigate]);
+
+  const handleSelectStep = useCallback((step) => {
+    navigate('penilaian', step);
+  }, [navigate]);
 
   // Silent sync helper
   const refreshList = useCallback(async () => {
@@ -174,9 +249,9 @@ export default function App() {
       showNotification({
         type: 'warning',
         title: 'Nama Peserta Belum Diisi',
-        message: 'Mohon lengkapi nama peserta atau komunitas terlebih dahulu pada tab Identitas.'
+        message: 'Mohon lengkapi nama peserta terlebih dahulu pada tab Identitas.'
       });
-      setActiveStep('identitas');
+      handleSelectStep('identitas');
       return;
     }
 
@@ -201,7 +276,7 @@ export default function App() {
   // Create new assessment
   const handleNewAssessment = () => {
     setCurrentAssessment(createBlankAssessment());
-    setActiveStep('identitas');
+    handleSelectStep('identitas');
     showNotification({
       type: 'info',
       title: 'Form Baru Siap',
@@ -227,7 +302,7 @@ export default function App() {
     const found = list.find(item => item.id === id);
     if (found) {
       setCurrentAssessment(found);
-      setActiveStep('identitas');
+      handleSelectStep('identitas');
       showNotification({
         type: 'info',
         title: 'Data Peserta Dibuka',
@@ -256,25 +331,73 @@ export default function App() {
     }
   };
 
+  // Fullscreen 100% viewport for Login & Register (no navbar, no scroll)
+  if (appMode === 'login' || appMode === 'register') {
+    return (
+      <div className="h-screen w-full flex items-center justify-center p-3 sm:p-4 bg-slate-100/70 overflow-hidden no-print">
+        {appMode === 'login' ? (
+          <LoginPage
+            onNavigateRegister={() => handleSelectAppMode('register')}
+            onNavigateHome={() => handleSelectAppMode('pendaftaran')}
+            onLoginSuccess={(u) => handleSelectAppMode(u.role === 'penilai' ? 'penilaian' : 'pendaftaran')}
+          />
+        ) : (
+          <RegisterPage
+            onNavigateLogin={() => handleSelectAppMode('login')}
+            onNavigateHome={() => handleSelectAppMode('pendaftaran')}
+            onRegisterSuccess={(u) => handleSelectAppMode(u.role === 'penilai' ? 'penilaian' : 'pendaftaran')}
+          />
+        )}
+        <ToastContainer />
+      </div>
+    );
+  }
+
+  if (appMode === 'dashboard') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <AdminDashboardPage
+          assessments={assessments}
+          currentAssessment={currentAssessment}
+          onOpenAssessment={handleOpenAssessment}
+          onDeleteAssessment={handleDeleteAssessment}
+          onNewAssessment={handleNewAssessment}
+        />
+        {/* Toast Notification Container */}
+        <ToastContainer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50/70">
       {/* Top Navbar */}
       <Navbar
-        onNewAssessment={handleNewAssessment}
-        onOpenAuditLog={() => setIsAuditLogOpen(true)}
+        onOpenAuditLog={() => {
+          if (user?.role === 'admin') {
+            setIsAuditLogOpen(true);
+          }
+        }}
         auditLogCount={auditLogs.length}
+        appMode={appMode}
+        onSelectAppMode={handleSelectAppMode}
       />
 
-      {/* Step Navigation Bar */}
-      <StepTabs
-        activeStep={activeStep}
-        onSelectStep={setActiveStep}
-        savedCount={assessments.length}
-      />
+      {/* Step Navigation Bar (only active in Penilaian Juri mode) */}
+      {appMode === 'penilaian' && (
+        <StepTabs
+          activeStep={activeStep}
+          onSelectStep={handleSelectStep}
+          savedCount={assessments.length}
+          onSwitchToPendaftaran={user?.role === 'admin' ? () => handleSelectAppMode('dashboard') : undefined}
+        />
+      )}
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 no-print">
-        {activeStep === 'rekap' ? (
+        {appMode === 'pendaftaran' ? (
+          <PendaftaranPage />
+        ) : activeStep === 'rekap' ? (
           // Full-width leaderboard page
           <RekapPage
             assessments={assessments}
@@ -283,14 +406,14 @@ export default function App() {
             onNewAssessment={handleNewAssessment}
           />
         ) : (
-          // Editorial grid: Left form page + Right sticky score summary
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            <div className="lg:col-span-8 space-y-6">
+          // Editorial layout: Left form page + Right sticky score summary
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+            <div className="flex-1 min-w-0 space-y-6">
               {activeStep === 'identitas' && (
                 <IdentitasPage
                   assessment={currentAssessment}
                   onChangeIdent={handleIdentChange}
-                  onNext={() => setActiveStep('admin')}
+                  onNext={() => handleSelectStep('admin')}
                 />
               )}
 
@@ -301,8 +424,8 @@ export default function App() {
                   onAttachAdminFile={handleAttachAdminFile}
                   onRemoveAdminFile={handleRemoveAdminFile}
                   onChangeField={handleFieldChange}
-                  onNext={() => setActiveStep('nilai')}
-                  onPrev={() => setActiveStep('identitas')}
+                  onNext={() => handleSelectStep('nilai')}
+                  onPrev={() => handleSelectStep('identitas')}
                 />
               )}
 
@@ -312,8 +435,8 @@ export default function App() {
                   onChangeScore={handleScoreChange}
                   onChangeCriterionNote={handleCriterionNoteChange}
                   onToggleBonus={handleToggleBonus}
-                  onNext={() => setActiveStep('rekom')}
-                  onPrev={() => setActiveStep('admin')}
+                  onNext={() => handleSelectStep('rekom')}
+                  onPrev={() => handleSelectStep('admin')}
                 />
               )}
 
@@ -322,18 +445,18 @@ export default function App() {
                   assessment={currentAssessment}
                   onChangeField={handleFieldChange}
                   onSave={handleSave}
-                  onPrev={() => setActiveStep('nilai')}
-                  onGoToRekap={() => setActiveStep('rekap')}
+                  onPrev={() => handleSelectStep('nilai')}
+                  onGoToRekap={() => handleSelectStep('rekap')}
                 />
               )}
             </div>
 
-            <div className="lg:col-span-4 relative h-full">
+            <div className="w-full lg:w-[360px] xl:w-[380px] shrink-0 lg:sticky lg:top-24 z-10">
               <ScoreSidebar
                 assessment={currentAssessment}
                 onSave={handleSave}
                 onReset={handleResetForm}
-                onGoToStep={setActiveStep}
+                onGoToStep={handleSelectStep}
               />
             </div>
           </div>
@@ -346,11 +469,13 @@ export default function App() {
       {/* Toast Notification Container (floating bottom-right / bottom-center) */}
       <ToastContainer />
 
-      {/* Audit Log Drawer */}
-      <AuditLogDrawer
-        isOpen={isAuditLogOpen}
-        onClose={() => setIsAuditLogOpen(false)}
-      />
+      {/* Audit Log Drawer (Hanya Admin) */}
+      {user?.role === 'admin' && (
+        <AuditLogDrawer
+          isOpen={isAuditLogOpen}
+          onClose={() => setIsAuditLogOpen(false)}
+        />
+      )}
     </div>
   );
 }

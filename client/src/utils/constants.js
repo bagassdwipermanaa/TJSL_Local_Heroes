@@ -66,28 +66,8 @@ export const ADMIN_CHECKLIST = [
       },
       {
         id: "adm-6",
-        title: "Data penerima manfaat tersedia jelas dan terverifikasi",
-        evidence: "Daftar nama, jumlah peserta, atau absensi penerima"
-      },
-      {
-        id: "adm-7",
         title: "Lokasi kegiatan dapat dikunjungi dan bersedia diverifikasi lapangan",
         evidence: "Surat kesediaan / pernyataan keterbukaan lokasi"
-      }
-    ]
-  },
-  {
-    group: "Pengakuan Lingkungan Sekitar",
-    items: [
-      {
-        id: "adm-8",
-        title: "Surat keterangan resmi dari pemerintah / tokoh setempat",
-        evidence: "Surat rekomendasi Kepala Desa/Lurah atau minimal RT/RW"
-      },
-      {
-        id: "adm-9",
-        title: "Testimoni penerima manfaat (minimal 3 orang)",
-        evidence: "Testimoni tertulis atau rekaman video otentik"
       }
     ]
   },
@@ -95,17 +75,17 @@ export const ADMIN_CHECKLIST = [
     group: "Kesesuaian Program",
     items: [
       {
-        id: "adm-10",
+        id: "adm-7",
         title: "Sukarela, bukan tugas kedinasan atau proyek TJSL korporat yang didanai penuh",
         evidence: "Surat pernyataan inisiatif mandiri"
       },
       {
-        id: "adm-11",
+        id: "adm-8",
         title: "Bebas dari politik praktis, SARA, dan kepentingan komersial pribadi",
         evidence: "Surat pernyataan netralitas & kepatuhan etika"
       },
       {
-        id: "adm-12",
+        id: "adm-9",
         title: "Pernyataan keaslian seluruh berkas dan dokumen yang dilampirkan",
         evidence: "Surat pernyataan bermeterai cukup"
       }

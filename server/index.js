@@ -5,8 +5,12 @@ import multer from 'multer';
 import { config } from './config/index.js';
 import { corsMiddleware } from './middlewares/corsMiddleware.js';
 import { loggerMiddleware } from './middlewares/loggerMiddleware.js';
+import { sanitizeMiddleware } from './middlewares/sanitizeMiddleware.js';
+import { generalApiLimiter } from './middlewares/rateLimiter.js';
 import assessmentRoutes from './routes/assessmentRoutes.js';
+import registrationRoutes from './routes/registrationRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { initDatabase } from './config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,7 +20,9 @@ const app = express();
 
 app.use(corsMiddleware);
 app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeMiddleware);
 app.use(loggerMiddleware);
+app.use('/api', generalApiLimiter.middleware());
 
 // Serve uploaded static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -32,7 +38,9 @@ app.get('/api/health', (req, res) => {
 
 // Mount Routes
 app.use('/api', assessmentRoutes);
+app.use('/api', registrationRoutes);
 app.use('/api', uploadRoutes);
+app.use('/api', authRoutes);
 
 // Global Error Handler (including Multer errors)
 app.use((err, req, res, next) => {

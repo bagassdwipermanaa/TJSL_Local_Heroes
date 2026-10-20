@@ -17,7 +17,6 @@ import { useNotification } from '../hooks/useNotification';
 export default function RekapPage({ assessments, onOpenAssessment, onDeleteAssessment, onNewAssessment }) {
   const { showNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [adminFilter, setAdminFilter] = useState('all');
   const [sortBy, setSortBy] = useState('score-desc');
 
@@ -42,11 +41,6 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
         return false;
       }
 
-      // Category
-      if (categoryFilter !== 'all' && (data.ident?.kategori || 'Individu') !== categoryFilter) {
-        return false;
-      }
-
       // Admin Status
       if (adminFilter !== 'all' && computed.adminStatus !== adminFilter) {
         return false;
@@ -67,7 +61,7 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
       }
       return new Date(b.data.updatedAt || 0) - new Date(a.data.updatedAt || 0);
     });
-  }, [processedList, searchQuery, categoryFilter, adminFilter, sortBy]);
+  }, [processedList, searchQuery, adminFilter, sortBy]);
 
   // Summary Metrics
   const metrics = useMemo(() => {
@@ -200,17 +194,6 @@ export default function RekapPage({ assessments, onOpenAssessment, onDeleteAsses
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto text-xs">
-          {/* Category Filter */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-cyan-600"
-          >
-            <option value="all">Semua Kategori</option>
-            <option value="Individu">Individu</option>
-            <option value="Komunitas">Komunitas</option>
-          </select>
-
           {/* Admin Filter */}
           <select
             value={adminFilter}
