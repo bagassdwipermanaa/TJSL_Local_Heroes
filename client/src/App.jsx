@@ -371,15 +371,18 @@ export default function App() {
     const admin = Array(TOTAL_ADMIN_ITEMS).fill(null);
 
     if (regFiles.rekomendasi && regFiles.rekomendasi.length > 0) {
-      adminFiles[2] = regFiles.rekomendasi[0];
+      const f = regFiles.rekomendasi[0];
+      adminFiles[2] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
       admin[2] = true;
     }
     if (regFiles.logbook && regFiles.logbook.length > 0) {
-      adminFiles[3] = regFiles.logbook[0];
+      const f = regFiles.logbook[0];
+      adminFiles[3] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
       admin[3] = true;
     }
     if (regFiles.dokumentasi && regFiles.dokumentasi.length > 0) {
-      adminFiles[4] = regFiles.dokumentasi[0];
+      const f = regFiles.dokumentasi[0];
+      adminFiles[4] = { ...f, url: f.url || (f.filename ? `/uploads/${f.filename}` : '') };
       admin[4] = true;
     }
 

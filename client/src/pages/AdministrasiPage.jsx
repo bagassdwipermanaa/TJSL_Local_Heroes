@@ -40,12 +40,14 @@ export default function AdministrasiPage({
   const passCount = adminState.filter((val) => val === true).length;
   const failCount = adminState.filter((val) => val === false).length;
 
-  const getBackendUrl = (relativeUrl) => {
-    if (!relativeUrl) return '';
-    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) return relativeUrl;
+  const getBackendUrl = (input) => {
+    if (!input) return '#';
+    const path = typeof input === 'string' ? input : (input.url || (input.filename ? `/uploads/${input.filename}` : ''));
+    if (!path) return '#';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
     // Strip '/api' from API_BASE to get backend origin
     const origin = API_BASE.replace(/\/api\/?$/, '');
-    return `${origin}${relativeUrl.startsWith('/') ? '' : '/'}${relativeUrl}`;
+    return `${origin}${path.startsWith('/') ? '' : '/'}${path}`;
   };
 
   const handleFileUpload = async (index, event) => {
@@ -216,16 +218,22 @@ export default function AdministrasiPage({
                       {attachedFile ? (
                         <div className="flex items-center gap-2 bg-cyan-50/70 border border-cyan-200/80 rounded-lg px-2.5 py-1 text-xs text-cyan-900 max-w-full">
                           <Paperclip className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
-                          <span className="font-semibold truncate max-w-xs" title={attachedFile.originalName}>
+                          <a
+                            href={getBackendUrl(attachedFile)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold truncate max-w-xs hover:underline hover:text-cyan-950 transition-colors"
+                            title={`Buka / Unduh Berkas: ${attachedFile.originalName}`}
+                          >
                             {attachedFile.originalName}
-                          </span>
+                          </a>
                           {attachedFile.size && (
                             <span className="text-[10px] text-cyan-600 shrink-0">
                               ({(attachedFile.size / 1024).toFixed(0)} KB)
                             </span>
                           )}
                           <a
-                            href={getBackendUrl(attachedFile.url)}
+                            href={getBackendUrl(attachedFile)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1 hover:text-cyan-700 text-cyan-600 transition-colors ml-1"
