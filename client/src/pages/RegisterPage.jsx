@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { UserPlus, User, Mail, Lock, Building, ArrowRight, ArrowLeft, Check, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, User, Mail, Lock, Building, ArrowRight, Check, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 
-export default function RegisterPage({ onNavigateLogin, onNavigateHome, onRegisterSuccess }) {
+export default function RegisterPage({ onNavigateLogin, onRegisterSuccess }) {
   const { register } = useAuth();
   const { showNotification } = useNotification();
 
@@ -101,16 +101,11 @@ export default function RegisterPage({ onNavigateLogin, onNavigateHome, onRegist
 
   return (
     <div className="w-full max-w-md sm:max-w-lg mx-auto">
-      {/* Return to Home link */}
+      {/* Header Info */}
       <div className="mb-2.5 flex items-center justify-between px-1">
-        <button
-          type="button"
-          onClick={onNavigateHome}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Kembali ke Beranda</span>
-        </button>
+        <span className="text-xs font-semibold text-cyan-900 bg-cyan-50 border border-cyan-200/80 px-2.5 py-0.5 rounded-full">
+          Portal Pendaftaran Akun
+        </span>
         <span className="text-[11px] text-slate-400 font-medium">PLN ES Local Heroes</span>
       </div>
 
@@ -161,7 +156,7 @@ export default function RegisterPage({ onNavigateLogin, onNavigateHome, onRegist
 
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                NIP / No. Induk TAD
+                NIP Pegawai
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -192,7 +187,7 @@ export default function RegisterPage({ onNavigateLogin, onNavigateHome, onRegist
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="nama@pln.co.id"
+                placeholder="nama@email.com"
                 autoComplete="email"
                 required
                 className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-cyan-800 focus:ring-1 focus:ring-cyan-800 transition-colors"

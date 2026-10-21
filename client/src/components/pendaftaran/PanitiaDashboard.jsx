@@ -131,7 +131,7 @@ export default function PanitiaDashboard({
 
         <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Pegawai Organik</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Pegawai</span>
             <ShieldCheck className="w-4 h-4 text-cyan-800" />
           </div>
           <p className="text-2xl sm:text-3xl font-extrabold text-slate-900">{pegawaiCount}</p>
@@ -168,8 +168,8 @@ export default function PanitiaDashboard({
               onChange={(e) => setFilterStatuspeg(e.target.value)}
               className="flex-1 sm:flex-none px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 transition-all"
             >
-              <option value="">Semua Pegawai / TAD</option>
-              <option value="Pegawai">Pegawai Organik</option>
+              <option value="">Semua Status</option>
+              <option value="Pegawai">Pegawai</option>
               <option value="TAD">Tenaga Alih Daya (TAD)</option>
             </select>
 

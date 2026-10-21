@@ -207,9 +207,7 @@ export default function AdministrasiPage({
                                 <div className="flex flex-wrap items-center gap-2 text-slate-800">
                                   <span className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-2xs">
                                     <Shield className="w-3 h-3 text-emerald-600" />
-                                    {assessment?.ident?.statuspeg === 'TAD' || assessment?.ident?.kategori === 'TAD'
-                                      ? 'TAD / Mitra Kerja'
-                                      : 'Pegawai Organik'}
+                                    {assessment?.ident?.statuspeg || 'Pegawai'}
                                   </span>
                                   {assessment?.ident?.nip && (
                                     <span className="text-slate-600">
@@ -328,7 +326,7 @@ export default function AdministrasiPage({
                             return (
                               <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 inline-flex items-center gap-1.5">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                Terverifikasi otomatis dari Profil Pengusul (NIP/ID: {assessment?.ident?.nip || '-'}, Status: {assessment?.ident?.statuspeg || 'Pegawai Organik'})
+                                Terverifikasi otomatis dari Profil Pengusul (NIP/ID: {assessment?.ident?.nip || '-'}, Status: {assessment?.ident?.statuspeg || 'Pegawai'})
                               </span>
                             );
                           }

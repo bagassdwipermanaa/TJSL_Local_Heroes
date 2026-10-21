@@ -94,21 +94,29 @@ export default function App() {
 
   // Strict Role Route Guards (Redirects if URL does not match role or unauthenticated)
   useEffect(() => {
-    if (appMode === 'login' || appMode === 'register' || appMode === 'profile') {
-      const activeUser = user || getStoredUser();
-      if (appMode === 'profile' && !activeUser) {
+    const activeUser = user || getStoredUser();
+
+    if (!activeUser) {
+      // Belum login: arahkan ke halaman login atau register
+      if (appMode !== 'login' && appMode !== 'register') {
         navigate('login', undefined, true);
       }
       return;
     }
 
-    const activeUser = user || getStoredUser();
-
-    if (!activeUser) {
-      // Guest / belum login: hanya boleh melihat formulir pendaftaran / beranda publik
-      if (appMode === 'penilaian' || appMode === 'dashboard') {
+    if (appMode === 'login' || appMode === 'register') {
+      // Jika sudah login, arahkan ke halaman sesuai peran pengguna
+      if (activeUser.role === 'admin') {
+        navigate('dashboard', undefined, true);
+      } else if (activeUser.role === 'penilai') {
+        navigate('penilaian', 'identitas', true);
+      } else {
         navigate('pendaftaran', undefined, true);
       }
+      return;
+    }
+
+    if (appMode === 'profile') {
       return;
     }
 
@@ -529,7 +537,6 @@ export default function App() {
         {appMode === 'login' ? (
           <LoginPage
             onNavigateRegister={() => handleSelectAppMode('register')}
-            onNavigateHome={() => handleSelectAppMode('pendaftaran')}
             onLoginSuccess={(u) => {
               if (u?.role === 'admin') {
                 navigate('dashboard');
@@ -543,7 +550,6 @@ export default function App() {
         ) : (
           <RegisterPage
             onNavigateLogin={() => handleSelectAppMode('login')}
-            onNavigateHome={() => handleSelectAppMode('pendaftaran')}
             onRegisterSuccess={(u) => {
               if (u?.role === 'admin') {
                 navigate('dashboard');

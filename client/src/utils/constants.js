@@ -36,8 +36,8 @@ export const ADMIN_CHECKLIST = [
     items: [
       {
         id: "adm-1",
-        title: "Pegawai/TAD aktif PLN Electricity Services",
-        evidence: "Kartu pegawai / SK / kontrak TAD"
+        title: "Pegawai aktif PLN Electricity Services",
+        evidence: "Kartu pegawai / SK pegawai"
       },
       {
         id: "adm-2",
@@ -55,7 +55,7 @@ export const ADMIN_CHECKLIST = [
         id: "adm-3",
         declIndex: 0,
         number: 1,
-        title: "Saya adalah pegawai/TAD aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
+        title: "Saya adalah pegawai aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
         evidence: "Pernyataan Integritas Butir [1] Formulir Pendaftaran"
       },
       {

@@ -15,7 +15,7 @@ export default function SectionPengusul({ data, onChangeField }) {
           Data Pengusul
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Identitas pegawai atau Tenaga Alih Daya (TAD) PLN Electricity Services yang menjadi penggerak utama kegiatan.
+          Identitas pegawai PLN Electricity Services yang menjadi penggerak utama kegiatan.
         </p>
       </div>
 
@@ -25,25 +25,15 @@ export default function SectionPengusul({ data, onChangeField }) {
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
             Status Kepegawaian <span className="text-rose-500">*</span>
           </label>
-          <div className="grid grid-cols-2 gap-3 max-w-xs">
-            {['Pegawai', 'TAD'].map((st) => {
-              const isSelected = (data.statuspeg || 'Pegawai') === st;
-              return (
-                <button
-                  key={st}
-                  type="button"
-                  onClick={() => onChangeField('statuspeg', st)}
-                  className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'border-slate-900 bg-slate-900 text-white shadow-xs'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>{st === 'Pegawai' ? 'Pegawai Organik' : 'TAD / Mitra Kerja'}</span>
-                </button>
-              );
-            })}
+          <div className="flex gap-3 max-w-xs">
+            <button
+              type="button"
+              onClick={() => onChangeField('statuspeg', 'Pegawai')}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-900 bg-slate-900 text-white text-xs font-bold shadow-xs cursor-default"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Pegawai</span>
+            </button>
           </div>
         </div>
 
@@ -64,11 +54,11 @@ export default function SectionPengusul({ data, onChangeField }) {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              NIP / Nomor Induk TAD <span className="text-rose-500">*</span>
+              NIP Pegawai <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="Contoh: 92140182ZY / TAD-88921"
+              placeholder="Contoh: 92140182ZY"
               value={data.nip || ''}
               onChange={(e) => onChangeField('nip', e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all"
@@ -106,13 +96,13 @@ export default function SectionPengusul({ data, onChangeField }) {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Email Kantor PLN ES <span className="text-rose-500">*</span>
+              Email Pegawai <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="email"
-                placeholder="nama.pegawai@plnes.co.id"
+                placeholder="nama@email.com"
                 value={data.email || ''}
                 onChange={(e) => onChangeField('email', e.target.value)}
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 focus:bg-white transition-all"

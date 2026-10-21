@@ -283,7 +283,7 @@ export default function PendaftaranPage({ onNavigateLogin }) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-50 text-cyan-800 border border-cyan-200 uppercase tracking-wider">
-                Kompetisi Pegawai & TAD
+                Kompetisi Pegawai
               </span>
               <span className="text-xs text-slate-400">PLN Electricity Services</span>
             </div>
@@ -291,7 +291,7 @@ export default function PendaftaranPage({ onNavigateLogin }) {
               Pendaftaran PLN ES TJSL Local Heroes
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-              Program apresiasi bagi pegawai/TAD yang secara sukarela menjadi penggerak inisiatif sosial kemasyarakatan, selaras dengan Tujuan Pembangunan Berkelanjutan (SDGs).
+              Program apresiasi bagi pegawai yang secara sukarela menjadi penggerak inisiatif sosial kemasyarakatan, selaras dengan Tujuan Pembangunan Berkelanjutan (SDGs).
             </p>
           </div>
         </div>

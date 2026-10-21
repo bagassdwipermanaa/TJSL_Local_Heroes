@@ -873,7 +873,7 @@ export default function AdminDashboardPage({
                     required
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="juri@plnes.co.id"
+                    placeholder="nama@email.com"
                     className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-cyan-800 text-slate-900"
                   />
                 </div>

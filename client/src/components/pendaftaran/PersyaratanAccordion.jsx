@@ -40,10 +40,10 @@ export default function PersyaratanAccordion() {
                 <span>1. Kriteria Pengusul</span>
               </div>
               <ul className="text-xs text-slate-600 space-y-1.5 pl-4 list-disc">
-                <li>Pegawai atau Tenaga Alih Daya (TAD) aktif PLN Electricity Services.</li>
+                <li>Pegawai aktif PLN Electricity Services.</li>
                 <li>Mendaftar sebagai penggerak individu.</li>
                 <li>Berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif (bukan hanya donatur).</li>
-                <li>Mendapat surat rekomendasi / persetujuan dari atasan langsung atau pimpinan unit.</li>
+                <li>Mendapat surat rekomendasi / persetujuan dari atasan langsung atau pimpinan unit (opsional).</li>
               </ul>
             </div>
 

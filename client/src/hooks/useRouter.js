@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { updateSEO } from '../utils/seo';
+import { getStoredUser } from '../services/authService';
 
 // Route SEO definition dictionary
 export const ROUTE_METADATA = {
@@ -13,7 +14,7 @@ export const ROUTE_METADATA = {
     path: '/pendaftaran',
     title: 'Pendaftaran Peserta & Dashboard Panitia',
     description:
-      'Formulir pendaftaran resmi peserta inisiatif TJSL Local Heroes PT PLN Electricity Services bagi insan pegawai & TAD beserta dashboard verifikasi panitia.'
+      'Formulir pendaftaran resmi peserta inisiatif TJSL Local Heroes PT PLN Electricity Services bagi insan pegawai beserta dashboard verifikasi panitia.'
   },
   identitas: {
     path: '/penilaian/identitas',
@@ -107,7 +108,24 @@ export function parseRoute(pathname = window.location.pathname) {
     return { appMode: 'penilaian', activeStep: 'identitas', path: '/penilaian/identitas' };
   }
 
-  return { appMode: 'pendaftaran', activeStep: 'identitas', path: '/pendaftaran' };
+  if (clean === '/pendaftaran') {
+    return { appMode: 'pendaftaran', activeStep: 'identitas', path: '/pendaftaran' };
+  }
+
+  // Root or unknown path: route based on user session
+  const storedUser = getStoredUser();
+  if (storedUser) {
+    if (storedUser.role === 'admin') {
+      return { appMode: 'dashboard', activeStep: 'overview', path: '/dashboard' };
+    }
+    if (storedUser.role === 'penilai') {
+      return { appMode: 'penilaian', activeStep: 'identitas', path: '/penilaian/identitas' };
+    }
+    return { appMode: 'pendaftaran', activeStep: 'identitas', path: '/pendaftaran' };
+  }
+
+  // Default for first-time visitors / unauthenticated users
+  return { appMode: 'login', activeStep: 'login', path: '/login' };
 }
 
 /**

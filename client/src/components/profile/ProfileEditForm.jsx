@@ -82,7 +82,7 @@ export default function ProfileEditForm({ user, onProfileUpdated }) {
               type="text"
               value={nip}
               onChange={(e) => setNip(e.target.value)}
-              placeholder="Contoh: 8408189Z atau TAD-2023-0042"
+              placeholder="Contoh: 8408189Z"
               className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-600/20 focus:border-cyan-600 transition-all"
             />
           </div>

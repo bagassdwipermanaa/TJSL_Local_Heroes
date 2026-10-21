@@ -14,7 +14,7 @@ export function updateSEO({
     : 'Penilaian TJSL Local Heroes PLN ES | PT PLN Electricity Services';
 
   const defaultDesc =
-    'Sistem Terpadu Pendaftaran dan Penilaian Juri TJSL Local Heroes PT PLN Electricity Services untuk penggerak individu pegawai dan TAD.';
+    'Sistem Terpadu Pendaftaran dan Penilaian Juri TJSL Local Heroes PT PLN Electricity Services untuk penggerak individu pegawai.';
   const fullDesc = description || defaultDesc;
 
   // 1. Title

@@ -220,7 +220,7 @@ export default function IdentitasPage({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                NIP Pegawai / Nomor TAD
+                NIP Pegawai
               </label>
               <input
                 type="text"

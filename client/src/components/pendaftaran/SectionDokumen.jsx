@@ -104,10 +104,14 @@ export default function SectionDokumen({ files = {}, onAddFile, onRemoveFile }) 
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       Bukti Terlampir
                     </span>
-                  ) : (
+                  ) : doc.required ? (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
                       Wajib Diunggah
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                      Opsional
                     </span>
                   )}
                 </div>

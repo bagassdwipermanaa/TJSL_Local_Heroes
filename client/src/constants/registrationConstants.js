@@ -38,12 +38,12 @@ export const REGISTRATION_DOCS = [
     key: "rekomendasi",
     label: "Surat rekomendasi atasan langsung / pimpinan unit",
     hint: "PDF atau foto surat rekomendasi atau persetujuan yang ditandatangani.",
-    required: true
+    required: false
   }
 ];
 
 export const REGISTRATION_DECLARATIONS = [
-  "Saya adalah pegawai/TAD aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
+  "Saya adalah pegawai aktif PLN Electricity Services dan berperan langsung di lapangan sebagai penggagas, penggerak, atau pelaksana aktif, bukan hanya sebagai donatur.",
   "Kegiatan ini saya lakukan secara sukarela dan bukan bagian dari tugas jabatan atau proyek TJSL yang didanai penuh perusahaan.",
   "Kegiatan ini tidak mengandung unsur politik praktis, SARA, maupun kepentingan komersial pribadi.",
   "Kegiatan masih aktif, lokasinya dapat dikunjungi, dan saya bersedia diverifikasi lapangan oleh tim penilai.",
