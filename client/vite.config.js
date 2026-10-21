@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     port: 3012,
     host: '0.0.0.0',
-    allowedHosts: true,
+    allowedHosts: ['tjslheroes.plnes.co.id', '.plnes.co.id', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
         target: 'http://localhost:8012',
@@ -26,7 +26,7 @@ export default defineConfig({
   preview: {
     port: 3012,
     host: '0.0.0.0',
-    allowedHosts: true,
+    allowedHosts: ['tjslheroes.plnes.co.id', '.plnes.co.id', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
         target: 'http://localhost:8012',
